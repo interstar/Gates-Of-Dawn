@@ -13,14 +13,16 @@ class Layout :
     def nextX(self) :
         self.x = self.x + self.dx
         if self.wrap and self.x > self.wrap :
-            self.x = 150
-            self.nextY()
-            
+            self.cr()                
         return self.x
         
     def nextY(self) :
         self.y = self.y + self.dy
-        
+
+    def cr(self) :
+        self.x = 150
+        self.nextY()
+                
 
 class Script :
     def __init__(self,w,h,z) :
@@ -35,7 +37,7 @@ class Script :
         self.objects = []
         self.connects = []
         self.ids = -1
-        self.ui_layout = Layout(150,50,500)
+        self.ui_layout = Layout(150,50,w)
                 
     def nextId(self) :
         self.ids = self.ids + 1
@@ -62,7 +64,7 @@ class Script :
             s = s + c + "\r\n"
         return s
                     
-script = Script(600,500,10)
+script = Script(800,500,10)
 
 class Unit : 
     def __init__(self) :
@@ -165,6 +167,7 @@ def sin(*args) : return Osc("osc~").__call__(*args)
 def phasor(*args) : return Osc("phasor~").__call__(*args)
 def noise(*args) : return Osc("noise~").__call__(*args)
 
+# Filter
 class Filter(Unit) :
     def outPort(self) : return 0
     
@@ -183,11 +186,41 @@ class Filter(Unit) :
         return self
         
 def vcf(*args) : return Filter().__call__(*args)
+
+# Delay
+class DelayWrite(Unit) :
+    def outPort(self) : return 0
+    
+    def __call__(self,sigAudio,delay,name) :
+        script.add("#X obj %s %s delwrite~ %s %s;" % (self.x,self.y,name,delay))
+        script.addConnect("#X connect %s %s %s 0;" % (sigAudio.id,sigAudio.outPort(),self.id))
+        return self
+
+class DelayRead(Unit) :
+    def outPort(self) : return 0
+    def __call__(self,time_sig,name) :
+        script.add("#X obj %s %s vd~ %s;" % (self.x,self.y,name))
+        script.addConnect("#X connect %s %s %s %s;" % (time_sig.id,time_sig.outPort(),self.id,0))
+        return self
+        
+def delaywrite(*args) : return DelayWrite().__call__(*args)
+def delayread(*args) : return DelayRead().__call__(*args)
+
+def simple_delay(sig,max_delay,name) :
+    write = delaywrite(sig,max_delay+1,name)
+    read = delayread(slider("%s_feedback_time"%name,0,max_delay),name)
+    fback = sigmult(read,slider("%s_feedback_gain"%name,0,0.9))
+    script.addConnect("#X connect %s %s %s %s;" % (fback.id,fback.outPort(),write.id,0))
+    return read
+    
+    
         
 # Generics
 
 def mtof(*args) : return Generic("mtof").__call__(*args)
 def sigmtof(*args) : return Generic("mtof~").__call__(*args)        
+
+
 
 # User Interface
 class UI(Unit) :
