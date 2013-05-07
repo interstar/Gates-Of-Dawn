@@ -31,6 +31,7 @@ def fm_noise(id=1) :
     ,id)
 
 def midi_filtered(sig,id=1) :
+    # Gets filter frequency from MIDI control (basic experiment, only the default channel info so far)
     return vcf(sig,
                mult(ctl_in(),10),
                num(slider("filter_res_%s"%id,0,10))
@@ -39,7 +40,7 @@ def midi_filtered(sig,id=1) :
 
 
 def fm_synth(id=1) :
-    # Gets note and filter frequency via MIDI
+    # Gets note and filter frequency via MIDI (basic experiment, no channel selection yet)
     return vol(
         sigmult(
             midi_filtered(
