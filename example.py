@@ -24,7 +24,7 @@ def fm_noise(id=1) :
     return vol(
         sigmult(
             filtered(
-                fm(sigmult(noise(num()),1000))
+                fm(sigmult(noise(num()),1000),id)
             ,id),
             phasor(num(slider("lfo_%s"%id,-40,40)))
         )    
@@ -44,16 +44,35 @@ def fm_synth(id=1) :
     return vol(
         sigmult(
             midi_filtered(
-                fm(sigmult(sin(num(mtof(note_in()))),1000))
+                fm(sigmult(sin(num(mtof(note_in()))),1000),id)
             ,id),
             phasor(num(slider("lfo_%s"%id,-40,40)))
         )    
     ,id)
 
 
+def lfo(sig,id=1) :
+    return sigmult(
+        sig,
+        phasor(slider("lfo_%s"%id,-40,40))
+    )
+
+def twin_osc(id=1) :
+    pitch = slider("twin_pitch_%d"%id,50,1000)
+    diff = sigadd(pitch,slider("twin_pitch_diff_%d"%id,0,20))
+    
+    return vol(filtered(lfo(
+        sigadd(
+            sigadd(phasor(pitch),-0.5),
+            sigadd(phasor(diff),-0.5)
+        )
+    ,id),id),id)
+    
+    
+
 script.clear()
 
-dac(fm_noise(),fm_noise(2),fm_synth(3))
+dac(fm_noise(),fm_noise(2),fm_synth(3),twin_osc(4))
 
 print script.out()
 
