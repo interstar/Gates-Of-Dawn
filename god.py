@@ -55,6 +55,10 @@ class Script :
         
     def clear(self) :
         self.reset(self.width,self.height,self.z)
+
+    def connect(self,src,sink,sinkPort) :
+        self.addConnect("#X connect %s %s %s %s;" % (src.id,src.outPort(),sink.id,sinkPort))
+        
         
     def out(self) :
         s = """#N canvas 100 100 %s %s %s;\r\n""" % (self.width, self.height, self.z)
@@ -83,21 +87,23 @@ class Generic(Unit) :
     def outPort(self) : return 0
     
     def __call__(self,in1,*args) :
-        script.add("#X obj %s %s %s;" % (self.x, self.y, self.name))
-        script.addConnect("#X connect %s %s %s 0;" % (in1.id,in1.outPort(),self.id))
+        arg_string = " ".join(args)
+        script.add("#X obj %s %s %s %s;" % (self.x, self.y, self.name, arg_string))
+        script.connect(in1,self,0)
         return self
 
 class Dac(Unit) :
     def __call__(self,*args) :
         script.add("#X obj %s %s dac~;" % (self.x,self.y))
         for a in args :
-            script.addConnect("#X connect %s %s %s 0;" % (a.id,a.outPort(),self.id))
-            script.addConnect("#X connect %s %s %s 1;" % (a.id,a.outPort(),self.id))
+            script.connect(a,self,0)
+            script.connect(a,self,1)
         return self
         
 def dac(*args) : return Dac().__call__(*args)
 
-    
+
+# Operators
 class Op(Unit) :
     def __init__(self,operator) :
         self.op = operator
@@ -111,13 +117,12 @@ class Op(Unit) :
         if hasattr(in2,'id') :
             # second in is another object, so connect it
             script.add("#X obj %s %s %s;" % (self.x,self.y,self.op))
-            script.addConnect("#X connect %s %s %s 0;" % (self.in1.id, self.in1.outPort(),self.id))
-            script.addConnect("#X connect %s %s %s 1;" % (self.in2.id, self.in2.outPort(),self.id))
-            
+            script.connect(in1,self,0)
+            script.connect(in2,self,1)            
         else :
             # assume second in is a number
             script.add("#X obj %s %s %s %s;" % (self.x,self.y,self.op,in2))
-            script.addConnect("#X connect %s %s %s 0;" % (self.in1.id, self.in1.outPort(),self.id))
+            script.connect(in1,self,0)
         return self
 
 def mult(*args) : return Op("*").__call__(*args)
@@ -136,7 +141,7 @@ class Num(Unit) :
         script.add("#X floatatom %s %s 5 0 0 0 - - -;" % (self.x,self.y))
         if len(args) > 0 :
             source = args[0]
-            script.addConnect("#X connect %s %s %s 0;" % (source.id,source.outPort(),self.id))
+            script.connect(source,self,0)
         
         return self
 
@@ -156,7 +161,7 @@ class Osc(Unit) :
         if hasattr(x, 'id') :
             # assume x is another object, so connect it
             script.add("#X obj %s %s %s 0;" % (self.x, self.y, self.oscname)) 
-            script.addConnect("#X connect %s %s %s 0;" %( x.id, x.outPort(), self.id))
+            script.connect(x,self,0)
         else :
             # assume x is a numeric frequency
             script.add("#X obj %s %s %s %s;" % (self.x, self.y, self.oscname, x)) 
@@ -172,14 +177,13 @@ class Filter(Unit) :
     def outPort(self) : return 0
     
     def __call__(self,sigAudio,sigFreq,res=4) :
-        # we assume sigAudio and sigFreq are signals        
-        script.addConnect("#X connect %s %s %s 0;" % (sigAudio.id, sigAudio.outPort(), self.id))
-        script.addConnect("#X connect %s %s %s 1;" % (sigFreq.id, sigFreq.outPort(), self.id))
-        
+        # we assume sigAudio and sigFreq are signals
+        script.connect(sigAudio,self,0)
+        script.connect(sigFreq,self,1)
         if hasattr(res,"id") :
             # resonance is object too
             script.add("#X obj %s %s bp~ 440 1;" % (self.x,self.y))
-            script.addConnect("#X connect %s %s %s 2;" % (res.id, res.outPort(), self.id))
+            script.connect(res,self,2)
         else : 
             script.add("#X obj %s %s bp~ 440 %s;" % (self.x,self.y,res))
 
@@ -193,14 +197,14 @@ class DelayWrite(Unit) :
     
     def __call__(self,sigAudio,delay,name) :
         script.add("#X obj %s %s delwrite~ %s %s;" % (self.x,self.y,name,delay))
-        script.addConnect("#X connect %s %s %s 0;" % (sigAudio.id,sigAudio.outPort(),self.id))
+        script.connect(sigAudio,self,0)
         return self
 
 class DelayRead(Unit) :
     def outPort(self) : return 0
     def __call__(self,time_sig,name) :
         script.add("#X obj %s %s vd~ %s;" % (self.x,self.y,name))
-        script.addConnect("#X connect %s %s %s %s;" % (time_sig.id,time_sig.outPort(),self.id,0))
+        script.connect(time_sig,self,0)
         return self
         
 def delaywrite(*args) : return DelayWrite().__call__(*args)
@@ -210,13 +214,17 @@ def simple_delay(sig,max_delay,name) :
     write = delaywrite(sig,max_delay+1,name)
     read = delayread(slider("%s_feedback_time"%name,0,max_delay),name)
     fback = sigmult(read,slider("%s_feedback_gain"%name,0,0.9))
-    script.addConnect("#X connect %s %s %s %s;" % (fback.id,fback.outPort(),write.id,0))
+    script.connect(fback,write,0)
     return read
     
-    
+# Envelopes
+def vline(*args) : return Generic("vline~").__call__(*args)
+
         
 # Generics
 
+def a_float(*args) : return Generic("float").__call__(*args)
+def pack(*args) : return Generic("pack").__call__(*args)
 def mtof(*args) : return Generic("mtof").__call__(*args)
 def sigmtof(*args) : return Generic("mtof~").__call__(*args)        
 
@@ -232,6 +240,33 @@ class UI(Unit) :
         self.x = script.ui_layout.nextX()
         self.y = script.ui_layout.y
         
+class Bang(UI) :
+    def outPort(self) : return 0
+    def __call__(self,label) :
+        script.add("#X obj %s %s bng 15 250 50 0 empty empty %s 17 7 0 10 -262144 -1 -1;" % (self.x,self.y,label))
+        return self        
+
+def bang(*args) : return Bang().__call__(*args)
+        
+# Messages
+
+class Message(UI) :
+
+    def outPort(self) : return 0
+    
+    def __call__(self,x,y=None) :
+        if y :
+            script.add("#X msg %s %s %s;" % (self.x, self.y, y))
+            script.connect(x,self,0)
+        else :
+            script.add("#X msg %s %s %s;" % (self.x, self.y, x))
+        return self
+
+def msg(*args) : return Message().__call__(*args)
+
+
+# Slider
+
 class Slider(UI) :
     def outPort(self) : return 0
     

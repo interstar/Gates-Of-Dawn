@@ -1,6 +1,8 @@
 
 from god import script, dac, sin, mult, sigmult, add, sigadd, sub, sigsub, phasor, noise, num
-from god import vcf, slider, mtof, sigmtof, note_in, ctl_in, simple_delay
+from god import vcf, slider, mtof, sigmtof, note_in, ctl_in, simple_delay, msg, vline, bang, pack, a_float
+
+
 
         
 def vol(sig,id=1) :
@@ -42,7 +44,7 @@ def noise_fm(id) :
 def basic_synth(src,id=1) :
     return vol(
         simple_delay(
-            lfo(
+            envelope(
                filtered(
                     src
                ,id)
@@ -64,18 +66,25 @@ def twin_osc(id=1) :
 def midi_notes() :
     return mtof(note_in())
     
+def envelope(sig,id) :
+    m = msg("1 10 \, 1 100 2000 \, 0 100 1000")
+    b = bang("envelope_%s" % id)
+    script.connect(b,m,0)
+    return sigmult(
+        sig,
+        vline(m)
+    )
+
+def new_env(sig,id) :
+    b = bang("envelope_%s" % id)
+    attack = num(slider("attack_%s"%id,0,100))
+    
     
 
 script.clear()
-s1 = basic_synth(noise_fm(1),1)
-script.ui_layout.cr()
-s2 = basic_synth(noise_fm(2),2)
-script.ui_layout.cr()
-s3 = basic_synth(phasor(num(slider("synth_3_pitch",40,1000))),3)
-script.ui_layout.cr()
-s4 = basic_synth(twin_osc(4),4)
+s1 = basic_synth(twin_osc(1),1)
 
-dac(s1,s2,s3,s4)
+dac(s1)
 
 print script.out()
 
