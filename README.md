@@ -15,4 +15,8 @@ How?
 
 Look at example.py for a couple of monophonic FM synths.
 
+Run like this : 
+
+> python example.py > test.pd
+> pd test.pd
 
