@@ -59,6 +59,7 @@ class Script :
     def connect(self,src,sink,sinkPort) :
         self.addConnect("#X connect %s %s %s %s;" % (src.id,src.outPort(),sink.id,sinkPort))
         
+    def cr(self) : self.ui_layout.cr()
         
     def out(self) :
         s = """#N canvas 100 100 %s %s %s;\r\n""" % (self.width, self.height, self.z)

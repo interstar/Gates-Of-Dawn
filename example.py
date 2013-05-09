@@ -44,7 +44,7 @@ def noise_fm(id) :
 def basic_synth(src,id=1) :
     return vol(
         simple_delay(
-            envelope(
+            new_env(
                filtered(
                     src
                ,id)
@@ -78,13 +78,27 @@ def envelope(sig,id) :
 def new_env(sig,id) :
     b = bang("envelope_%s" % id)
     attack = num(slider("attack_%s"%id,0,100))
+    script.connect(b,attack,0)
+    decay = num(slider("decay_%s"%id,0,10000))
+    p = pack(attack,"f","f")
+    script.connect(decay,p,1)
+    return sigmult(
+        sig,
+        vline(msg(p,"1 \$1 \, 0 \$2 \$1"))
+    )
     
     
 
 script.clear()
 s1 = basic_synth(twin_osc(1),1)
-
-dac(s1)
+script.cr()
+s2 = basic_synth(
+    fm(sin(
+        num(slider("pitch_2",20,1000))
+    ),2))
+script.cr()
+s3 = basic_synth(noise_fm(3),3)
+dac(s1,s2,s3)
 
 print script.out()
 
