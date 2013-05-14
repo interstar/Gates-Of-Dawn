@@ -11,7 +11,7 @@ def vol(sig,id=1) :
 def lfo(sig,id=1) :
     return sigmult(
         sig,
-        phasor(slider("lfo_%s"%id,-40,40))
+        phasor(slider("lfo_%s"%id,-15,15))
     )
 
 
@@ -26,7 +26,8 @@ def fm(sig,id=1) :
   
 def filtered(sig,id=1) :
     return vcf(sig,
-               num(slider("filter_freq_%s"%id,0,1000)),
+               sigmult(phasor(slider("filt_freq_phasor_speed_%s"%id,-10,10)),1000),
+               #num(slider("filter_freq_%s"%id,0,1000)),
                num(slider("filter_res_%s"%id,0,10))
            )
 
@@ -44,7 +45,7 @@ def noise_fm(id) :
 def basic_synth(src,id=1) :
     return vol(
         simple_delay(
-            new_env(
+            lfo(
                filtered(
                     src
                ,id)
@@ -56,6 +57,7 @@ def basic_synth(src,id=1) :
 
 def twin_osc(id=1) :
     pitch = slider("twin_pitch_%d"%id,50,1000)
+    #pitch = midi_notes()
     diff = sigadd(pitch,slider("twin_pitch_diff_%d"%id,0,20))
    
     return sigadd(
@@ -90,15 +92,17 @@ def new_env(sig,id) :
     
 
 script.clear()
+
+#dac(vol(filtered(phasor(num(slider("slide1",0,1000))))))
+
 s1 = basic_synth(twin_osc(1),1)
 script.cr()
-s2 = basic_synth(
-    fm(sin(
-        num(slider("pitch_2",20,1000))
-    ),2))
+s2 = basic_synth(twin_osc(2),2)
 script.cr()
-s3 = basic_synth(noise_fm(3),3)
-dac(s1,s2,s3)
+s3 = basic_synth(twin_osc(3),3)
+script.cr()
+s4 = basic_synth(noise_fm(4),4)
+dac(s1,s2,s3,s4)
 
 print script.out()
 

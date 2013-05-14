@@ -79,6 +79,20 @@ class Unit :
         self.id = script.nextId()
         self.x = script.x
         self.y = script.nextY()
+
+class Num(Unit) :
+
+    def outPort(self) : return 0
+    
+    def __call__(self,*args) :        
+        script.add("#X floatatom %s %s 5 0 0 0 - - -;" % (self.x,self.y))
+        if len(args) > 0 :
+            source = args[0]
+            script.connect(source,self,0)
+        
+        return self
+
+def num(*args) : return Num().__call__(*args)          
         
 class Generic(Unit) :
     def __init__(self,name) :
@@ -133,20 +147,6 @@ def sigadd(*args) : return Op("+~").__call__(*args)
 def sub(*args) : return Op("-").__call__(*args)
 def sigsub(*args) : return Op("-~").__call__(*args)
 
-
-class Num(Unit) :
-
-    def outPort(self) : return 0
-    
-    def __call__(self,*args) :        
-        script.add("#X floatatom %s %s 5 0 0 0 - - -;" % (self.x,self.y))
-        if len(args) > 0 :
-            source = args[0]
-            script.connect(source,self,0)
-        
-        return self
-
-def num(*args) : return Num().__call__(*args)          
                
 
 
@@ -183,10 +183,10 @@ class Filter(Unit) :
         script.connect(sigFreq,self,1)
         if hasattr(res,"id") :
             # resonance is object too
-            script.add("#X obj %s %s bp~ 440 1;" % (self.x,self.y))
+            script.add("#X obj %s %s vcf~ 440 1;" % (self.x,self.y))
             script.connect(res,self,2)
         else : 
-            script.add("#X obj %s %s bp~ 440 %s;" % (self.x,self.y,res))
+            script.add("#X obj %s %s vcf~ 440 %s;" % (self.x,self.y,res))
 
         return self
         
@@ -279,6 +279,9 @@ class Slider(UI) :
         return self
                 
 def slider(*args) : return Slider().__call__(*args)
+
+
+
 
 # MIDI
 class NoteIn(Unit) :
