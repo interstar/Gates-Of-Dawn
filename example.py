@@ -56,8 +56,16 @@ def basic_synth(src,id=1) :
 
 
 def twin_osc(id=1) :
-    pitch = slider("twin_pitch_%d"%id,50,1000)
+    #pitch = slider("twin_pitch_%d"%id,50,1000)
     #pitch = midi_notes()
+    pitch = num()
+    script.connect(note(36),pitch,0)
+    script.connect(note(38),pitch,0)
+    script.connect(note(41),pitch,0)
+    script.connect(note(43),pitch,0)
+    script.connect(note(48),pitch,0)
+    
+    
     diff = sigadd(pitch,slider("twin_pitch_diff_%d"%id,0,20))
    
     return sigadd(
@@ -67,6 +75,9 @@ def twin_osc(id=1) :
     
 def midi_notes() :
     return mtof(note_in())
+
+def note(n) :
+    return mtof(msg(n))
     
 def envelope(sig,id) :
     m = msg("1 10 \, 1 100 2000 \, 0 100 1000")
