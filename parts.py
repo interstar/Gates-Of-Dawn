@@ -2,7 +2,6 @@ from god import *
 
 slider = hslider
 
-
         
 def vol(sig,id=1) :
     return sigmult(sig,num(slider("vol_%s" % id,0,1)))

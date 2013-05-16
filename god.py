@@ -7,17 +7,21 @@ class Layout :
         self.x = 0
         self.y = 30
         self.dx = dx
+        self.start_dy = dy
         self.dy = dy
         self.wrap = wrap
         
     def nextX(self,part) :
         self.x = self.x + part.width()
+        if part.height() > self.dy :
+            self.dy = part.height()
         if self.wrap and self.x > self.wrap :
             self.cr()                
         return self.x
         
     def nextY(self) :
         self.y = self.y + self.dy
+        self.dy = self.start_dy
 
     def cr(self) :
         self.x = 150
@@ -37,7 +41,7 @@ class Script :
         self.objects = []
         self.connects = []
         self.ids = -1
-        self.ui_layout = Layout(150,50,w)
+        self.ui_layout = Layout(150,40,w)
                 
     def nextId(self) :
         self.ids = self.ids + 1
@@ -253,7 +257,7 @@ class Message(UI) :
 
     def outPort(self) : return 0
     
-    def width(sel) : return 100
+    def width(sel) : return 60
     
     def __call__(self,x,y=None) :
         if y :
@@ -273,6 +277,7 @@ class Slider(UI) :
         self.name = name
         self.sep_width = sep_width
         self.wide = wide
+        self.sep_height = high+20
         self.high = high
 
         self.common()
@@ -280,6 +285,7 @@ class Slider(UI) :
     def outPort(self) : return 0
     
     def width(self) : return self.sep_width
+    def height(self) : return self.sep_height
     
     def __call__(self,label,lo=0,hi=127,*args) :
         self.label = label        
@@ -288,8 +294,8 @@ class Slider(UI) :
         script.add("#X obj %s %s %s %s %s %s %s 0 0 empty empty %s -2 -8 0 10 -262144 -1 -1 0 1;" % (self.x, self.y, self.name, self.wide,self.high,lo,hi,self.label))
         return self
                 
-def hslider(*args) : return Slider("hsl",120, 30, 150).__call__(*args)
-def vslider(*args) : return Slider("vsl",30, 120, 80).__call__(*args)
+def hslider(*args) : return Slider("hsl",120, 20, 150).__call__(*args)
+def vslider(*args) : return Slider("vsl",20, 120, 80).__call__(*args)
 
 
 

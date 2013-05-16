@@ -42,6 +42,7 @@ script.clear()
 
 #dac(vol(filtered(phasor(num(slider("slide1",0,1000))))))
 
+script.cr()
 s1 = basic_synth(twin_osc(1),1)
 script.cr()
 s2 = basic_synth(twin_osc(2),2)
