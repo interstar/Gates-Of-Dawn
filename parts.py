@@ -1,0 +1,75 @@
+from god import *
+
+slider = hslider
+
+
+        
+def vol(sig,id=1) :
+    return sigmult(sig,num(slider("vol_%s" % id,0,1)))
+
+def lfo(sig,id=1) :
+    return sigmult(
+        sig,
+        phasor(slider("lfo_%s"%id,-15,15))
+    )
+
+
+def fm(sig,id=1) :
+    return sin(sigadd(
+                sig,
+                sigmult(
+                   phasor(num(slider("fm_freq_%s"%id,-1000,1000))),
+                   num(slider("fm_amp_%s"%id,-500,500))
+                )
+           ))
+  
+def filtered(sig,id=1) :
+    return vcf(sig,
+               sigmult(phasor(slider("filt_freq_phasor_speed_%s"%id,-10,10)),1000),
+               #num(slider("filter_freq_%s"%id,0,1000)),
+               num(slider("filter_res_%s"%id,0,10))
+           )
+
+
+def midi_filtered(sig,id=1) :
+    # Gets filter frequency from MIDI control (basic experiment, only the default channel info so far)
+    return vcf(sig,
+               mult(ctl_in(),10),
+               num(slider("filter_res_%s"%id,0,10))
+           )
+
+def simple_delay(sig,max_delay,name) :
+    write = delaywrite(sig,max_delay+1,name)
+    read = delayread(slider("%s_feedback_time"%name,0,max_delay),name)
+    fback = sigmult(read,slider("%s_feedback_gain"%name,0,0.9))
+    script.connect(fback,write,0)
+    return read
+    
+def midi_notes() :
+    return mtof(note_in())
+
+def note(n) :
+    return mtof(msg(n))
+    
+def envelope(sig,id) :
+    m = msg("1 10 \, 1 100 2000 \, 0 100 1000")
+    b = bang("envelope_%s" % id)
+    script.connect(b,m,0)
+    return sigmult(
+        sig,
+        vline(m)
+    )
+
+def new_env(sig,id) :
+    b = bang("envelope_%s" % id)
+    attack = num(slider("attack_%s"%id,0,100))
+    script.connect(b,attack,0)
+    decay = num(slider("decay_%s"%id,0,10000))
+    p = pack(attack,"f","f")
+    script.connect(decay,p,1)
+    return sigmult(
+        sig,
+        vline(msg(p,"1 \$1 \, 0 \$2 \$1"))
+    )
+    
+

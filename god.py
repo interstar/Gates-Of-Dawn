@@ -10,8 +10,8 @@ class Layout :
         self.dy = dy
         self.wrap = wrap
         
-    def nextX(self) :
-        self.x = self.x + self.dx
+    def nextX(self,part) :
+        self.x = self.x + part.width()
         if self.wrap and self.x > self.wrap :
             self.cr()                
         return self.x
@@ -211,12 +211,7 @@ class DelayRead(Unit) :
 def delaywrite(*args) : return DelayWrite().__call__(*args)
 def delayread(*args) : return DelayRead().__call__(*args)
 
-def simple_delay(sig,max_delay,name) :
-    write = delaywrite(sig,max_delay+1,name)
-    read = delayread(slider("%s_feedback_time"%name,0,max_delay),name)
-    fback = sigmult(read,slider("%s_feedback_gain"%name,0,0.9))
-    script.connect(fback,write,0)
-    return read
+
     
 # Envelopes
 def vline(*args) : return Generic("vline~").__call__(*args)
@@ -235,10 +230,13 @@ def sigmtof(*args) : return Generic("mtof~").__call__(*args)
 class UI(Unit) :
     def __init__(self) :
         self.common()
-        
+    
+    def width(self) : return 0
+    def height(self) : return 0
+           
     def common(self) :
         self.id = script.nextId()
-        self.x = script.ui_layout.nextX()
+        self.x = script.ui_layout.nextX(self)
         self.y = script.ui_layout.y
         
 class Bang(UI) :
@@ -255,6 +253,8 @@ class Message(UI) :
 
     def outPort(self) : return 0
     
+    def width(sel) : return 100
+    
     def __call__(self,x,y=None) :
         if y :
             script.add("#X msg %s %s %s;" % (self.x, self.y, y))
@@ -269,16 +269,27 @@ def msg(*args) : return Message().__call__(*args)
 # Slider
 
 class Slider(UI) :
+    def __init__(self,name,wide,high,sep_width) :
+        self.name = name
+        self.sep_width = sep_width
+        self.wide = wide
+        self.high = high
+
+        self.common()
+        
     def outPort(self) : return 0
     
+    def width(self) : return self.sep_width
+    
     def __call__(self,label,lo=0,hi=127,*args) :
-        self.label = label
+        self.label = label        
         self.lo = lo
         self.hi = hi
-        script.add("#X obj %s %s hsl 128 20 %s %s 0 0 empty empty %s -2 -8 0 10 -262144 -1 -1 0 1;" % (self.x, self.y,lo,hi,self.label))
+        script.add("#X obj %s %s %s %s %s %s %s 0 0 empty empty %s -2 -8 0 10 -262144 -1 -1 0 1;" % (self.x, self.y, self.name, self.wide,self.high,lo,hi,self.label))
         return self
                 
-def slider(*args) : return Slider().__call__(*args)
+def hslider(*args) : return Slider("hsl",120, 30, 150).__call__(*args)
+def vslider(*args) : return Slider("vsl",30, 120, 80).__call__(*args)
 
 
 
