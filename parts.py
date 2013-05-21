@@ -9,9 +9,9 @@ def lfo(sig,id=1) :
     return sigmult(sig,phasor(slider("lfo_%s"%id,-15,15,default=0.0001)))
 
 
-def fm(sig,id=1) :
+def fm(freq,id=1) :
     return sin(sigadd(
-                sig,
+                freq,
                 sigmult(
                    phasor(num(slider("fm_freq_%s"%id,-1000,1000))),
                    num(slider("fm_amp_%s"%id,-500,500))
@@ -55,6 +55,8 @@ def envelope(sig,id) :
         vline(m)
     )
 
+
+
 def new_env(sig,id) :
     b = bang("envelope_%s" % id)
     attack = num(slider("attack_%s"%id,0,100))
@@ -66,7 +68,21 @@ def new_env(sig,id) :
         sig,
         vline(msg(p,"1 \$1 \, 0 \$2 \$1"))
     )
+
+def triggered_env(sig,trigger,id) :
     
+    attack = num(slider("attack_%s"%id,0,100))    
+    decay = num(slider("decay_%s"%id,0,10000))
+    p = pack(attack,"f","f")
+    script.connect(decay,p,1)
+    script.connect(trigger,attack,0)
+    return sigmult(
+        sig,
+        vline(msg(p,"1 \$1 \, 0 \$2 \$1"))
+    )
+    
+    
+
 def counter(bangIn) :
     o = Generic1("int").__call__(bangIn)
     inc = add(o,1)
@@ -78,3 +94,6 @@ def metronome(start,speed) :
     stop = msg("stop")
     script.connect(stop,met,0)
     return met
+    
+def cycler(metro,maxi) :
+    return mod(counter(metro),maxi)

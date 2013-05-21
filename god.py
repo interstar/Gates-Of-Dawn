@@ -68,7 +68,11 @@ class Script :
         self.reset(self.width,self.height,self.z)
 
     def connect(self,src,sink,sinkPort) :
-        self.addConnect("#X connect %s %s %s %s;" % (src.id,src.outPort(),sink.id,sinkPort))
+        self.connectFrom(src,src.outPort(),sink,sinkPort)
+
+    def connectFrom(self,src,srcPort,sink,sinkPort) :
+        self.addConnect("#X connect %s %s %s %s;" % (src.id,srcPort,sink.id,sinkPort))
+
         
     def cr(self) : self.ui_layout.cr()
         
@@ -241,8 +245,9 @@ def a_float(*args) : return Generic1("float").__call__(*args)
 def pack(*args) : return Generic1("pack").__call__(*args)
 def mtof(*args) : return Generic1("mtof").__call__(*args)
 def sigmtof(*args) : return Generic1("mtof~").__call__(*args)        
-
-
+def clip(*args) : return Generic1("clip").__call__(*args)
+def sigclip(*args) : return Generic1("clip~").__call__(*args)
+def mod(*args) : return Generic1("mod").__call__(*args)
 
 # User Interface
 class UI(Unit) :
