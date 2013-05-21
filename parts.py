@@ -1,16 +1,12 @@
 from god import *
 
 slider = hslider
-
         
 def vol(sig,id=1) :
     return sigmult(sig,num(slider("vol_%s" % id,0,1)))
 
 def lfo(sig,id=1) :
-    return sigmult(
-        sig,
-        phasor(slider("lfo_%s"%id,-15,15))
-    )
+    return sigmult(sig,phasor(slider("lfo_%s"%id,-15,15,default=0.0001)))
 
 
 def fm(sig,id=1) :
@@ -71,4 +67,14 @@ def new_env(sig,id) :
         vline(msg(p,"1 \$1 \, 0 \$2 \$1"))
     )
     
-
+def counter(bangIn) :
+    o = Generic1("int").__call__(bangIn)
+    inc = add(o,1)
+    script.connect(inc,o,1)
+    return o
+    
+def metronome(start,speed) :
+    met = Generic1("metro").__call__(start,speed)
+    stop = msg("stop")
+    script.connect(stop,met,0)
+    return met

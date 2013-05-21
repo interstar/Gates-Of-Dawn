@@ -31,6 +31,7 @@ class Layout :
 class Script :
     def __init__(self,w,h,z) :
         self.reset(w,h,z)
+        self.lb = None # will become loadbang at end of initialization
 
     def reset(self,w,h,z) :
         self.width = w
@@ -42,6 +43,12 @@ class Script :
         self.connects = []
         self.ids = -1
         self.ui_layout = Layout(150,40,w)
+
+    def getLoadBang(self) :
+        # we only have a loadbang if one is called for, via this method
+        if not self.lb :
+            self.lb = loadbang()
+        return self.lb  
                 
     def nextId(self) :
         self.ids = self.ids + 1
@@ -97,14 +104,21 @@ class Num(Unit) :
         return self
 
 def num(*args) : return Num().__call__(*args)          
-        
-class Generic(Unit) :
+
+class Generic0(Unit) :
+    """ Takes 0 input signals """
     def __init__(self,name) :
         self.common()
         self.name = name
-        
+
     def outPort(self) : return 0
-    
+
+    def __call__(self) :
+        script.add("#X obj %s %s %s;" % (self.x, self.y, self.name))
+        return self
+        
+class Generic1(Generic0) :
+    """ A generic that expects 1 input signal """
     def __call__(self,in1,*args) :
         arg_string = " ".join(args)
         script.add("#X obj %s %s %s %s;" % (self.x, self.y, self.name, arg_string))
@@ -218,15 +232,15 @@ def delayread(*args) : return DelayRead().__call__(*args)
 
     
 # Envelopes
-def vline(*args) : return Generic("vline~").__call__(*args)
+def vline(*args) : return Generic1("vline~").__call__(*args)
 
         
 # Generics
 
-def a_float(*args) : return Generic("float").__call__(*args)
-def pack(*args) : return Generic("pack").__call__(*args)
-def mtof(*args) : return Generic("mtof").__call__(*args)
-def sigmtof(*args) : return Generic("mtof~").__call__(*args)        
+def a_float(*args) : return Generic1("float").__call__(*args)
+def pack(*args) : return Generic1("pack").__call__(*args)
+def mtof(*args) : return Generic1("mtof").__call__(*args)
+def sigmtof(*args) : return Generic1("mtof~").__call__(*args)        
 
 
 
@@ -251,6 +265,8 @@ class Bang(UI) :
 
 def bang(*args) : return Bang().__call__(*args)
         
+def loadbang(*args) : return Generic0("loadbang").__call__(*args)
+        
 # Messages
 
 class Message(UI) :
@@ -270,6 +286,10 @@ class Message(UI) :
 def msg(*args) : return Message().__call__(*args)
 
 
+# Default initialization messages
+def defaultInitialiser(val) :
+    return msg(script.getLoadBang(),val)
+
 # Slider
 
 class Slider(UI) :
@@ -287,15 +307,18 @@ class Slider(UI) :
     def width(self) : return self.sep_width
     def height(self) : return self.sep_height
     
-    def __call__(self,label,lo=0,hi=127,*args) :
+    def __call__(self,label,lo=0,hi=127,**kwargs) :
         self.label = label        
         self.lo = lo
         self.hi = hi
         script.add("#X obj %s %s %s %s %s %s %s 0 0 empty empty %s -2 -8 0 10 -262144 -1 -1 0 1;" % (self.x, self.y, self.name, self.wide,self.high,lo,hi,self.label))
+        if "default" in kwargs :
+            script.connect(defaultInitialiser(kwargs["default"]),self,0)
+
         return self
                 
-def hslider(*args) : return Slider("hsl",120, 20, 150).__call__(*args)
-def vslider(*args) : return Slider("vsl",20, 120, 80).__call__(*args)
+def hslider(*args,**kwargs) : return Slider("hsl",120, 20, 150).__call__(*args,**kwargs)
+def vslider(*args,**kwargs) : return Slider("vsl",20, 120, 80).__call__(*args,**kwargs)
 
 
 
@@ -318,7 +341,8 @@ class CtlIn(Unit) :
         return self 
                
 def ctl_in(*args) : return CtlIn().__call__(*args) 
-        
+
+       
 if __name__ == '__main__' :
     import unittest
     
@@ -349,4 +373,4 @@ if __name__ == '__main__' :
 
     unittest.main()
     
-    
+ 

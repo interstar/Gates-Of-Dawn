@@ -2,6 +2,7 @@
 from god import *
 from parts import * 
 
+
 def noise_fm(id) :
     return fm(sigmult(noise(num()),1000),id)
     
@@ -36,21 +37,23 @@ def twin_osc(id=1) :
              sigadd(phasor(diff),-0.5)
            )    
     
+def counterTest() :
+    script.clear()
+    num(counter(metronome(bang("metro counter"),"500")))
+    print script.out()    
+
+def bigSynths() :
+    script.clear()
+    script.cr()
+    s1 = basic_synth(twin_osc(1),1)
+    script.cr()
+    s2 = basic_synth(twin_osc(2),2)
+    script.cr()
+    s3 = basic_synth(twin_osc(3),3)
+    script.cr()
+    s4 = basic_synth(noise_fm(4),4)
+    dac(s1,s2,s3,s4)
+    print script.out()
     
+counterTest()
 
-script.clear()
-
-#dac(vol(filtered(phasor(num(slider("slide1",0,1000))))))
-
-script.cr()
-s1 = basic_synth(twin_osc(1),1)
-script.cr()
-s2 = basic_synth(twin_osc(2),2)
-script.cr()
-s3 = basic_synth(twin_osc(3),3)
-script.cr()
-s4 = basic_synth(noise_fm(4),4)
-dac(s1,s2,s3,s4)
-
-print script.out()
-    
