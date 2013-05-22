@@ -20,25 +20,30 @@ def basic_synth(src,id=1) :
 def dist(src,val) :
     return sigclip(src,"%s"%-val,"%s"%val)
 
-
-def twin_osc(id=1,pitch=None) :
-    #pitch = slider("twin_pitch_%d"%id,50,1000)
-    #pitch = midi_notes()
+def some_notes() :
     pitch = num()
     script.connect(note(36),pitch,0)
     script.connect(note(38),pitch,0)
     script.connect(note(41),pitch,0)
     script.connect(note(43),pitch,0)
     script.connect(note(48),pitch,0)
+    return pitch
     
-    
-    diff = sigadd(pitch,slider("twin_pitch_diff_%d"%id,0,20))
+def twin_osc(freq,id=1) :   
+    diff = sigadd(freq,slider("twin_pitch_diff_%d"%id,0,20))
    
     return sigadd(
-             sigadd(phasor(pitch),-0.5),
+             sigadd(phasor(freq),-0.5),
              sigadd(phasor(diff),-0.5)
            )    
     
+def env_filtered(sig,trigger,id=1) :
+    return vcf(sig,
+               triggered_env(num(msg(script.getLoadBang(),1000)),trigger,"env_freq_%s"%id),
+               #triggered_env(num(msg(script.getLoadBang(),10)),trigger,"env_res_%s"%id)
+               slider("filter_env_res%s"%id,0,10)
+           )
+               
 def counterTest() :
     script.clear()
     num(cycler(metronome(bang("metro counter"),"500"),"16"))
@@ -72,8 +77,9 @@ def sequence(trigger,*vals) :
     i = 0
     for v in vals :
         fb = f()
-        #script.connect(msg(script.getLoadBang(),v),fb,1)
-        script.connect(slider("slider_%s"%i,0,128,default=32),fb,1)
+        script.connect(msg(script.getLoadBang(),v),fb,1)
+        
+        #script.connect(slider("slider_%s"%i,0,128,default=32),fb,1)
         script.connectFrom(s,i,fb,0)
         script.connect(fb,freq,0)
         i=i+1
@@ -81,14 +87,23 @@ def sequence(trigger,*vals) :
     
 def seqSin() :
     script.clear()
-    met = metronome(bang("metro"),"800")
-    cyc = cycler(met,"8")
-    seq = sequence(cyc,61,62,63,64,65,66,67,99)
+    
+    met = metronome(bang("metro"),"400")
+    cyc = cycler(met,"16")
+    # quick Sublime Loop :-) http://www.sublimeloop.com/
+    seq = sequence(cyc,48,51,48,51, 50,53,50,53, 46,50,46,50, 48,52,48,52)
     num(seq)
-    dac(vol(triggered_env(
-        filtered(fm(seq,1),1),
-        met
-    ,1)))
+    script.cr()
+    syn1 = triggered_env(
+                env_filtered(twin_osc(seq,1),met,1),
+                met
+            ,1)
+    syn2 = triggered_env(
+                env_filtered(twin_osc(midi_notes(),2),met,2),
+                met
+            ,2)
+          
+    dac(vol(simple_delay(syn1,1000,"del1")),vol(simple_delay(syn2,1000,"del2")))
     print script.out()
 
 seqSin()

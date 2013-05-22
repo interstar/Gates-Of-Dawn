@@ -69,8 +69,7 @@ def new_env(sig,id) :
         vline(msg(p,"1 \$1 \, 0 \$2 \$1"))
     )
 
-def triggered_env(sig,trigger,id) :
-    
+def triggered_env(sig,trigger,id) :    
     attack = num(slider("attack_%s"%id,0,100))    
     decay = num(slider("decay_%s"%id,0,10000))
     p = pack(attack,"f","f")

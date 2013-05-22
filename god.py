@@ -278,7 +278,8 @@ class Message(UI) :
 
     def outPort(self) : return 0
     
-    def width(sel) : return 60
+    def width(self) : return 80
+    def height(self) : return 40
     
     def __call__(self,x,y=None) :
         if y :
