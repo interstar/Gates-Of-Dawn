@@ -52,13 +52,13 @@ def counterTest() :
 def bigSynths() :
     script.clear()
     script.cr()
-    s1 = basic_synth(twin_osc(1),1)
+    s1 = basic_synth(twin_osc(slider(1)),1)
     script.cr()
-    s2 = basic_synth(twin_osc(2),2)
+    s2 = basic_synth(twin_osc(slider(1)),2)
     script.cr()
-    s3 = basic_synth(twin_osc(3),3)
+    s3 = basic_synth(twin_osc(slider(1)),3)
     script.cr()
-    s4 = basic_synth(noise_fm(4),4)
+    s4 = basic_synth(noise_fm(slider(1)),4)
     dac(s1,s2,s3,s4)
     print script.out()
 
@@ -86,6 +86,7 @@ def sequence(trigger,*vals) :
     return freq
     
 def seqSin() :
+    # A synth controlled by a step sequencer, with a second synth controlled by midi
     script.clear()
     
     met = metronome(bang("metro"),"400")
@@ -106,4 +107,12 @@ def seqSin() :
     dac(vol(simple_delay(syn1,1000,"del1")),vol(simple_delay(syn2,1000,"del2")))
     print script.out()
 
-seqSin()
+def simpleSynth() :
+    script.clear()
+    script.cr()
+    s1 = basic_synth(twin_osc(slider(1),1),1)
+    dac(s1)
+    print script.out()
+    
+bigSynths()
+
