@@ -1,10 +1,7 @@
 
 from god import *
-
  
 
-def dist(src,val) :
-    return sigclip(src,"%s"%-val,"%s"%val)
 
 def some_notes() :
     pitch = num()
@@ -27,32 +24,7 @@ def ctl_twin(id) :
            )    
     
     
-               
-def counterTest() :
-    script.clear()
-    num(cycler(metronome(bang("metro counter"),"500"),"16"))
-    print script.out()    
 
 
-def clippedSin() :
-    script.clear()
-    dac(vol(filtered(dist(sin(slider("pitch",0,1000)),0.5)),1))
-    print script.out()
-    
-    
 
-def simpleSynth() :
-
-    
-    #s2 = basic_synth(twin_osc(midi_notes(),2),2)
-    
-    
-    #s1 = vol(new_env(filtered(twin_osc(midi_notes(),1),1),1),1)
-    
-    #s1 = vol(new_env(filtered(fm(twin_osc(midi_notes(),1),1),1),1),1)
- 
-    #s1 = midi_filtered(ctl_twin(1))
-    
-    
-simpleSynth()
 
