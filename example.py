@@ -36,6 +36,16 @@ def twin_osc(freq,id=1) :
              sigadd(phasor(freq),-0.5),
              sigadd(phasor(diff),-0.5)
            )    
+
+def ctl_twin(id) :
+    m = midi_notes()
+    diff = sigadd(m,slider(id,0,20))
+   
+    return sigadd(
+             sigadd(phasor(m),-0.5),
+             sigadd(phasor(diff),-0.5)
+           )    
+    
     
 def env_filtered(sig,trigger,id=1) :
     return vcf(sig,
@@ -56,7 +66,7 @@ def bigSynths() :
     script.cr()
     s2 = basic_synth(twin_osc(slider(1)),2)
     script.cr()
-    s3 = basic_synth(twin_osc(slider(1)),3)
+    s3 = basic_synth(twin_osc(midi_notes()),3)
     script.cr()
     s4 = basic_synth(noise_fm(slider(1)),4)
     dac(s1,s2,s3,s4)
@@ -110,9 +120,20 @@ def seqSin() :
 def simpleSynth() :
     script.clear()
     script.cr()
-    s1 = basic_synth(twin_osc(slider(1),1),1)
+    #s1 = basic_synth(twin_osc(slider("pitch1"),1),1)
+    
+    s1 = basic_synth(twin_osc(midi_notes(),1),1)
+    
+    #s2 = basic_synth(twin_osc(midi_notes(),2),2)
+    
+    
+    #s1 = vol(new_env(filtered(twin_osc(midi_notes(),1),1),1),1)
+    
+    #s1 = vol(new_env(filtered(fm(twin_osc(midi_notes(),1),1),1),1),1)
+ 
+    #s1 = midi_filtered(ctl_twin(1))
     dac(s1)
     print script.out()
     
-bigSynths()
-
+simpleSynth()
+#bigSynths()
