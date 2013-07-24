@@ -129,6 +129,15 @@ class Generic1(Generic0) :
         script.connect(in1,self,0)
         return self
 
+class Generic2(Generic0) :
+    """ A generic that expects 2 inputs that are either normal or signal """
+    def __call__(self,in1,in2,*args) :
+        arg_string=" ".join(args)
+        script.add("#X obj %s %s %s %s;" % (self.x,self.y,self.name,arg_string))
+        script.connect(in1,self,0)
+        script.connect(in2,self,1)
+        return self
+
 class Generic3(Generic0) :
     """ A generic that expects 3 inputs that are either normal or signal """
     def __call__(self,in1,in2,in3,*args) :
@@ -250,6 +259,26 @@ def delayread(*args) : return DelayRead().__call__(*args)
 # Envelopes
 def vline(*args) : return Generic1("vline~").__call__(*args)
 
+
+
+# Snapshot
+class Snapshot(Unit) :
+    def __init__(self) :
+        self.name = "snapshot~"
+        self.common()
+        
+    def outPort(self) : return 0
+        
+    def __call__(self,sig,bangs,*args) :
+        arg_string=" ".join(args)
+        script.add("#X obj %s %s %s %s;" % (self.x,self.y,self.name,arg_string))
+        script.connect(sig,self,0)
+        script.connect(bangs,self,0)
+        return self
+
+def snapshot(*args) : return Snapshot().__call__(*args)
+
+
         
 # Generics
 
@@ -260,6 +289,8 @@ def sigmtof(*args) : return Generic1("mtof~").__call__(*args)
 def clip(*args) : return Generic1("clip").__call__(*args)
 def sigclip(*args) : return Generic3("clip~").__call__(*args)
 def mod(*args) : return Generic1("mod").__call__(*args)
+
+
 
 # User Interface
 class UI(Unit) :
