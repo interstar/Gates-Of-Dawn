@@ -1,9 +1,7 @@
 
 from god import *
 
-def noise_fm(id) :
-    return fm(sigmult(noise(num()),1000),id)
-    
+ 
 
 def dist(src,val) :
     return sigclip(src,"%s"%-val,"%s"%val)
@@ -41,18 +39,6 @@ def counterTest() :
     num(cycler(metronome(bang("metro counter"),"500"),"16"))
     print script.out()    
 
-def bigSynths() :
-    script.clear()
-    script.cr()
-    s1 = basic_synth(twin_osc(slider(1)),1)
-    script.cr()
-    s2 = basic_synth(twin_osc(slider(1)),2)
-    script.cr()
-    s3 = basic_synth(twin_osc(midi_notes()),3)
-    script.cr()
-    s4 = basic_synth(noise_fm(slider(1)),4)
-    dac(s1,s2,s3,s4)
-    print script.out()
 
 def clippedSin() :
     script.clear()
