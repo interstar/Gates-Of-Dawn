@@ -13,7 +13,7 @@ Gates-of-Dawn lets me write my PD patches as cleanly and succinctly as possible 
 How?
 ----
 
-Look at example.py for a couple of monophonic FM synths.
+Look in the examples directory for a couple of example patches.
 
 Run like this :
 
