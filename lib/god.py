@@ -175,7 +175,7 @@ class Dac(Unit) :
             script.connect(a,self,1)
         return self
         
-def dac(*args) : return Dac().__call__(*args)
+def dac_(*args) : return Dac().__call__(*args)
 
 
 # Operators
@@ -201,11 +201,11 @@ class Op(Unit) :
         return self
 
 def mult(*args) : return Op("*").__call__(*args)
-def sigmult(*args) : return Op("*~").__call__(*args)
+def mult_(*args) : return Op("*~").__call__(*args)
 def add(*args) : return Op("+").__call__(*args)
-def sigadd(*args) : return Op("+~").__call__(*args)
+def add_(*args) : return Op("+~").__call__(*args)
 def sub(*args) : return Op("-").__call__(*args)
-def sigsub(*args) : return Op("-~").__call__(*args)
+def sub_(*args) : return Op("-~").__call__(*args)
 
                
 
@@ -229,18 +229,18 @@ class Osc(Unit) :
         return self
         
         
-def sin(*args) : return Osc("osc~").__call__(*args)
-def phasor(*args) : return Osc("phasor~").__call__(*args)
-def noise(*args) : return Osc("noise~").__call__(*args)
+def sin_(*args) : return Osc("osc~").__call__(*args)
+def phasor_(*args) : return Osc("phasor~").__call__(*args)
+def noise_(*args) : return Osc("noise~").__call__(*args)
 
 # Filter
 class Filter(Unit) :
     def outPort(self) : return 0
     
-    def __call__(self,sigAudio,sigFreq,res=4) :
-        # we assume sigAudio and sigFreq are signals
-        script.connect(sigAudio,self,0)
-        script.connect(sigFreq,self,1)
+    def __call__(self,audio_,freq_,res=4) :
+        # we assume audio_ and freq_ are signals
+        script.connect(audio_,self,0)
+        script.connect(freq_,self,1)
         if hasattr(res,"id") :
             # resonance is object too
             script.add("#X obj %s %s vcf~ 440 1;" % (self.x,self.y))
@@ -250,15 +250,15 @@ class Filter(Unit) :
 
         return self
         
-def vcf(*args) : return Filter().__call__(*args)
+def vcf_(*args) : return Filter().__call__(*args)
 
 # Delay
 class DelayWrite(Unit) :
     def outPort(self) : return 0
     
-    def __call__(self,sigAudio,delay,name) :
+    def __call__(self,audio_,delay,name) :
         script.add("#X obj %s %s delwrite~ %s %s;" % (self.x,self.y,name,delay))
-        script.connect(sigAudio,self,0)
+        script.connect(audio_,self,0)
         return self
 
 class DelayRead(Unit) :
@@ -268,13 +268,13 @@ class DelayRead(Unit) :
         script.connect(time_sig,self,0)
         return self
         
-def delaywrite(*args) : return DelayWrite().__call__(*args)
-def delayread(*args) : return DelayRead().__call__(*args)
+def delaywrite_(*args) : return DelayWrite().__call__(*args)
+def delayread_(*args) : return DelayRead().__call__(*args)
 
 
     
 # Envelopes
-def vline(*args) : return Generic1("vline~").__call__(*args)
+def vline_(*args) : return Generic1("vline~").__call__(*args)
 
 
 
@@ -302,24 +302,25 @@ def snapshot(*args) : return Snapshot().__call__(*args)
 def a_float(*args) : return Generic1("float").__call__(*args)
 def pack(*args) : return Generic1("pack").__call__(*args)
 def mtof(*args) : return Generic1("mtof").__call__(*args)
-def sigmtof(*args) : return Generic1("mtof~").__call__(*args)        
+def mtof_(*args) : return Generic1("mtof~").__call__(*args)        
 def clip(*args) : return Generic1("clip").__call__(*args)
-def sigclip(*args) : return Generic3("clip~").__call__(*args)
+def clip_(*args) : return Generic3("clip~").__call__(*args)
 def mod(*args) : return Generic1("mod").__call__(*args)
 
 
-def sigoutlet(*args) : return Generic1("outlet~").__call__(*args)
+def outlet_(*args) : return Generic1("outlet~").__call__(*args)
 def outlet(*args) : return Generic1("outlet").__call__(*args)
-def siginlet(*args) : return Generic1("inlet~").__call__(*args)
+def inlet_(*args) : return Generic1("inlet~").__call__(*args)
 def inlet(*args) : return Generic("inlet").__call__(*args)
 
 
 # User Interface
 class UI(Unit) :
     def __init__(self) :
-        self.common()
         self._width = 0
         self._height = 0
+
+        self.common()
     
     def width(self) : return self._width
     def height(self) : return self._height

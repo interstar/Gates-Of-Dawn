@@ -3,7 +3,7 @@ from basic_monosynth import twin_osc
 
 def env_filtered(sig,trigger,id=1) :
     """ Envelope controls filter """
-    return vcf(sig,
+    return vcf_(sig,
                triggered_env(num(msg(script.getLoadBang(),1000)),trigger,"env_freq_%s"%id),
                #triggered_env(num(msg(script.getLoadBang(),10)),trigger,"env_res_%s"%id)
                slider("filter_env_res%s"%id,0,10)
@@ -32,20 +32,19 @@ def sequence(trigger,*vals) :
 
 if __name__ == '__main__' :
     # A synth controlled by a step sequencer, with a second synth controlled by midi
-    script.clear()
+    with makeFile("seq.pd") as f :
     
-    met = metronome(bang("metro"),"400")
-    cyc = cycler(met,"16")
-    
-    # quick Sublime Loop :-) http://www.sublimeloop.com/
-    seq = sequence(cyc,48,51,48,51, 50,53,50,53, 46,50,46,50, 48,52,48,52)
-    num(seq)
-    script.cr()
-    syn1 = triggered_env(
-                env_filtered(twin_osc(seq,1),met,1),
-                met
-            ,1)
-          
-    dac(vol(syn1))
-    print script.out()
+        met = metronome(bang("metro"),"400")
+        cyc = cycler(met,"16")
+        
+        # quick Sublime Loop :-) http://www.sublimeloop.com/
+        seq = sequence(cyc,48,51,48,51, 50,53,50,53, 46,50,46,50, 48,52,48,52)
+        num(seq)
+        script.cr()
+        syn1 = triggered_env(
+                    env_filtered(twin_osc(seq,1),met,1),
+                    met
+                ,1)
+              
+        dac_(vol(simple_delay(syn1,5000,"echo")))
 

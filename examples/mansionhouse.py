@@ -2,7 +2,7 @@ from god import *
 from basic_monosynth import basic_synth, twin_osc
 
 def noise_fm(id) :
-    return fm(sigmult(noise(num()),1000),id)
+    return fm(mult_(noise_(num()),1000),id)
     
     
 if __name__ == '__main__' :
@@ -18,7 +18,7 @@ if __name__ == '__main__' :
     script.cr()
     s5 = basic_synth(noise_fm(slider("pitch5fm")),5)
     
-    dac(s1,s2,s3,s4,s5)
+    dac_(s1,s2,s3,s4,s5)
     print script.out()
     
    
