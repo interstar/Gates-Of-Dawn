@@ -19,7 +19,7 @@ For a Quickstart on Linux (and probably Mac), do this :
 
     git clone https://github.com/interstar/Gates-Of-Dawn.git god
     cd god/examples
-    ln -s ../lib god
+    ln -s .. god
     python basic_monosynth.py
     pd basic_monosynth.pd
 
