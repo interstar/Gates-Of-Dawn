@@ -6,7 +6,7 @@ Python library for creating PureData patches.
 Why?
 ----
 
-Pure Data is a great free synth making toolkit. But I've always found it too laborious to use in practice. I wanted to get into PD, but I think in code. I like my programmer-defined, reusable abstractions. When I'm defining a data-flow network I don't want to be messing around laying out each part in arbitrary x,y co-ordinates.
+PureData is a great free synth making toolkit. But I've always found it too laborious to use in practice. I wanted to get into PD, but I think in code. I like my programmer-defined, reusable abstractions. When I'm defining a data-flow network I don't want to be messing around laying out each part in arbitrary x,y co-ordinates.
 
 Gates-of-Dawn lets me write my PD patches as cleanly and succinctly as possible - using function composition - while the computer lays the UI components out for me. Right now it only handles a small subset of PD objects. And is probably way too limited. But I'm already finding it pretty useful for putting synths together.
 
@@ -37,17 +37,17 @@ Explanation
 
 So let's look at some simple code examples, introducing some key ideas, while working up to that basic_monosynth.
 
-**Idea #1** : Gates of Dawn is to use *function composition* as the way to wire together the units in Pure Data. 
+**Idea #1** : Gates of Dawn uses *function composition* as the way to wire together the units in Pure Data. 
 
-In Pure Data traditionally, you'd do something like wire the number coming out of a slider control to the input of an oscillator and then take 
+In PureData traditionally, you'd do something like wire the number coming out of a slider control to the input of an oscillator and then take 
 that to the dac audio output. Here's how to express that using Gates of Dawn.
 
-        dac_( sin_ ( slider("pitch",0,1000) ) )
+        dac_ ( sin_ ( slider("pitch",0,1000) ) )
 
 To create the slider you call the slider function (giving a label and a range). Then you pass the result of calling that as an argument to the 
-sin_ function (which creates an osc~ object in PD). The output of that function is passed as an argument to the dac~. (Note we are now trying to use the convention that functions that represent signal objects (those in PD that have a ~ in their name) will have a _ suffix. This is not ideal but it's the best we can get in Python.)
+sin_ function (which creates an osc~ object in PD). The output of that function is passed as an argument to the dac~. (Note we are now trying to use the convention that functions that represent signal objects (ie. those that have a ~ in their name in PD) will have a _ suffix. This is not ideal but it's the best we can do in Python.)
 
-In Gates of Dawn programs are structured in terms of a bunch of functions which represent either individual PD objects or sub-assemblies of PD objects. You pass as arguments to the functions what things are upstream and coming in the inlet, and the return value of the function is suitable to be passed to downstream objects.
+In Gates of Dawn programs are structured in terms of a bunch of functions which represent either individual PD objects or sub-assemblies of PD objects. You pass as arguments to the functions those things that are upstream and coming in the inlet, and the return value of the function is suitable to be passed to downstream objects.
 
 Things obviously get a bit more complicated than that, but before we go there, let's just grasp the basic outline of a Gates of Dawn program.
 
@@ -58,12 +58,12 @@ Here's the complete program.
     from god import *
 
     with makeFile("hello.pd") as f :
-        dac_( sin_ ( slider("pitch",0,1000) ) )
+        dac_ ( sin_ ( slider("pitch",0,1000) ) )
 
 
 We use Python's "with" construction in conjunction with our makeFile() function to wrap the objects that are going into a file. This is a complete program which defines the simple slider -> oscillator -> dac patch and saves it into a file called "hello.pd"
 
-Try the example above by putting it into a file called hello.py in the examples directory and running it with Python. Then trying the hello.pd file.
+Try the example above by putting it into a file called hello.py in the examples directory and running it with Python. Then try opening the hello.pd file in PureData.
 
 If you want to create multiple pd files from the same Python program you just have to wrap each in a separate *with makeFile()* block. 
 
@@ -101,13 +101,12 @@ For example here is simple function that takes a signal input and puts it throug
     def vol(sig,id=1) :
         return mult_(sig,num(slider("vol_%s" % id,0,1)))
 
-Its first argument is any signal. The second is optional and used to make unique label for the control. 
+Its first argument is any signal. The second is optional and used to make a unique label for the control. 
 
 We can combine it with our current two oscillator example like this : 
 
     def vol(sig,id=1) :
         return mult_(sig,num(slider("vol_%s" % id,0,1)))
-
 
     with makeFile("hello.pd") as f :
         s = vol (sin_ ( slider("pitch",0,1000) ), "1")
@@ -130,9 +129,9 @@ Of course, we can use Python to clean up and eliminate the redundancy here.
 
 
 
-**Idea #6** : UI is automatically layed out (but it's work in progress).
+**Idea #6** : UI is automatically layed-out (but it's work in progress).
 
-You'll notice, when looking at the resulting pd files, that they're ugly but usable. Gates of Dawn basically thinks that there are two kinds of PD objects. Those you want to interact with and those you don't. All the objects you don't want to see are piled up in a column on the left. All the controls you need to interact with area layed out automatically in the rest of the screen so you can use them. 
+You'll notice, when looking at the resulting pd files, that they're ugly but usable. Gates of Dawn basically thinks that there are two kinds of PD objects. Those you want to interact with and those you don't. All the objects you don't want to see are piled up in a column on the left. All the controls you need to interact with are layed-out automatically in the rest of the screen so you can use them. 
 
 This is still very much work in progress. The ideal for Gates of Dawn is that you should be able to generate everything you want, just from 
 the Python script, without having to tweak the PD files by hand later. But we're some way from that at this point. At the moment, if you need to make a simple and usable PD patch rapidly, Gates of Dawn will do it. But it's not going to give you a UI you'll want to use long-term.
