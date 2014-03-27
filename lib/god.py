@@ -4,12 +4,13 @@
 
 class Layout : 
     def __init__(self, dx, dy, wrap = 0) :
-        self.x = 0
+        self.x = 0      
         self.y = 30
         self.dx = dx
         self.start_dy = dy
         self.dy = dy
         self.wrap = wrap
+        self.initLeft = 90
         
     def nextX(self,part) :
         self.x = self.x + part.width()
@@ -24,9 +25,8 @@ class Layout :
         self.dy = self.start_dy
 
     def cr(self) :
-        self.x = 150
-        self.nextY()
-                
+        self.x = self.initLeft
+        self.nextY()                
 
 class Script :
     def __init__(self,w,h,z) :
@@ -43,6 +43,7 @@ class Script :
         self.connects = []
         self.ids = -1
         self.ui_layout = Layout(150,40,w)
+        
 
     def getLoadBang(self) :
         # we only have a loadbang if one is called for, via this method
@@ -72,9 +73,13 @@ class Script :
 
     def connectFrom(self,src,srcPort,sink,sinkPort) :
         self.addConnect("#X connect %s %s %s %s;" % (src.id,srcPort,sink.id,sinkPort))
-
         
     def cr(self) : self.ui_layout.cr()
+
+    def guiCanvas(self) :
+        # sets up graph-on-canvas around GUI parts
+        self.addConnect("#X coords 0 -1 1 1 %s %s 1 %s %s;" % (self.ui_layout.wrap+40, self.ui_layout.y+30, self.ui_layout.initLeft-20, 10))
+
         
     def out(self) :
         s = """#N canvas 100 100 %s %s %s;\r\n""" % (self.width, self.height, self.z)
@@ -83,8 +88,20 @@ class Script :
         for c in self.connects :
             s = s + c + "\r\n"
         return s
-                    
-script = Script(800,500,10)
+
+    def __enter__(self) :
+        self.clear()
+        if self.fName is None :
+            self.fName = "default_file.pd"
+    
+    def __exit__(self,type,value,traceback) :
+        with open(self.fName,'w') as f :
+            f.write(self.out())
+            
+script = Script(500,500,10)
+def makeFile(fName) :
+    script.fName = fName
+    return script
 
 class Unit : 
     def __init__(self) :
@@ -291,19 +308,29 @@ def sigclip(*args) : return Generic3("clip~").__call__(*args)
 def mod(*args) : return Generic1("mod").__call__(*args)
 
 
+def sigoutlet(*args) : return Generic1("outlet~").__call__(*args)
+def outlet(*args) : return Generic1("outlet").__call__(*args)
+def siginlet(*args) : return Generic1("inlet~").__call__(*args)
+def inlet(*args) : return Generic("inlet").__call__(*args)
+
 
 # User Interface
 class UI(Unit) :
     def __init__(self) :
         self.common()
+        self._width = 0
+        self._height = 0
     
-    def width(self) : return 0
-    def height(self) : return 0
+    def width(self) : return self._width
+    def height(self) : return self._height
            
     def common(self) :
         self.id = script.nextId()
         self.x = script.ui_layout.nextX(self)
         self.y = script.ui_layout.y
+
+def guiCanvas() : script.guiCanvas()
+
         
 class Bang(UI) :
     def outPort(self) : return 0
@@ -314,9 +341,28 @@ class Bang(UI) :
 def bang(*args) : return Bang().__call__(*args)
         
 def loadbang(*args) : return Generic0("loadbang").__call__(*args)
+
+# Subcanvases
+class AbstractionSubcanvas(UI) :
+
+    def __init__(self,name,width,height) :
+        self.name = name
+        self._width = width
+        self._height = height
+        self.common()
+
+        
+    def outPort(self) : return 0
+    
+    def __call__(self) :
+        script.add("#X obj %s %s %s;" % (self.x, self.y, self.name))
+        return self
+    
+    
+def abstraction(name,width,height,*args) : return AbstractionSubcanvas(name,width,height).__call__(*args)
+
         
 # Messages
-
 class Message(UI) :
 
     def outPort(self) : return 0
@@ -339,8 +385,9 @@ def msg(*args) : return Message().__call__(*args)
 def defaultInitialiser(val) :
     return msg(script.getLoadBang(),val)
 
-# Slider
 
+
+# Slider
 class Slider(UI) :
     def __init__(self,name,wide,high,sep_width) :
         self.name = name
