@@ -8,12 +8,12 @@ from basic_monosynth import twin_osc, basic_synth
     
 if __name__ == '__main__' :
 
-    with makeFile("simpleMono.pd") as f :
+    with patch("simpleMono.pd") as f :
         s1 = basic_synth(twin_osc(slider("pitch1"),1),1)
         outlet_(s1)
         guiCanvas()
         
-    with makeFile("gcontainer.pd") as f :
+    with patch("gcontainer.pd") as f :
         dac_( abstraction("simpleMono",800,50), 
               abstraction("simpleMono",800,50),
               abstraction("simpleMono",800,50)             

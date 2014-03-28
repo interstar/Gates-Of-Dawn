@@ -20,7 +20,7 @@ def basic_synth(src,id=1) :
     ,id)
     
 if __name__ == '__main__' :
-    with makeFile("basic_monosynth.pd") as f :
+    with patch("basic_monosynth.pd") as f :
         s1 = basic_synth(twin_osc(slider("pitch1"),1),1)
         dac_(s1)
 

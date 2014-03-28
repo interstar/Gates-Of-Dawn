@@ -32,7 +32,7 @@ def sequence(trigger,*vals) :
 
 if __name__ == '__main__' :
     # A synth controlled by a step sequencer, with a second synth controlled by midi
-    with makeFile("seq.pd") as f :
+    with patch("seq.pd") as f :
     
         met = metronome(bang("metro"),"400")
         cyc = cycler(met,"16")

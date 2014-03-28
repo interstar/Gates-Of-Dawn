@@ -99,7 +99,8 @@ class Script :
             f.write(self.out())
             
 script = Script(500,500,10)
-def makeFile(fName) :
+
+def patch(fName) :
     script.fName = fName
     return script
 
