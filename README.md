@@ -1,7 +1,3 @@
-  ![Gates of Dawn](http://nooranch.com/blogged/pics/gatesofdawn.jpg)
-<div style="float: right; padding:10px;">
-  ![Gates of Dawn](http://nooranch.com/blogged/pics/gatesofdawn.jpg)
-</div>
 
 Gates Of Dawn
 =============
@@ -203,6 +199,7 @@ Similarly the *patch()* function doesn't do what you expect. It doesn't open a n
 If you want to write your own functions to create PD objects that aren't currently handled, then look first at the Generics in the god.py file. Generic0, Generic1, Generic2 etc. are the classes you use to create PD objects with 0, 1, 2 etc. arguments. In some cases a function to create a new PD object requires nothing more than creating an instance of a GenericX object in Python and calling its call method. If the Generics won't work for you, then you can write your own class, derived from Unit or UI. Look at some of the existing examples. 
 
 
+  ![Gates of Dawn](http://nooranch.com/blogged/pics/gatesofdawn.jpg)
 
 
 
