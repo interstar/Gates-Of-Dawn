@@ -1,5 +1,5 @@
 <div style="float: right; padding:10px;">
-![Gates of Dawn](http://www.illusionsgallery.com/Gates-Dawn-L.jpg)
+![Gates of Dawn](gatesofdawn.jpg)
 </div>
 
 Gates Of Dawn
