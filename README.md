@@ -1,5 +1,5 @@
 <div style="float: right; padding:10px;">
-![Gates of Dawn](interstar.github.com/interstar/Gates-Of-Dawn/gatesofdawn.jpg)
+![Gates of Dawn](https://github.com/interstar/Gates-Of-Dawn/blob/master/gatesofdawn.jpg)
 </div>
 
 Gates Of Dawn
