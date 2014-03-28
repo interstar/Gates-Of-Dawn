@@ -1,7 +1,13 @@
-Gates-Of-Dawn
+<div style="float: right; padding:10px;">
+![Gates of Dawn](http://www.illusionsgallery.com/Gates-Dawn-L.jpg)
+</div>
+
+Gates Of Dawn
 =============
 
+
 Python library for creating PureData patches.
+
 
 Why?
 ----
@@ -13,7 +19,7 @@ Gates-of-Dawn lets me write my PD patches as cleanly and succinctly as possible 
 Quickstart
 ----------
 
-Make sure you've installed both Python and [Pure Data](http://puredata.info/) on your machine : 
+Make sure you've installed both Python and [PureData](http://puredata.info/) on your machine : 
 
 For a Quickstart on Linux (and probably Mac), do this :
 
@@ -26,7 +32,7 @@ For a Quickstart on Linux (and probably Mac), do this :
 
 *What Just Happened?*
 
-You created a basic_monosynth using Gates of Dawn and then ran it in Pure Data.
+You created a basic_monosynth using Gates of Dawn and then ran it in PureData.
 
 *I can't hear anything*
 
@@ -35,9 +41,10 @@ Could be the default values in the synth. Make sure PD is capable of producing s
 Explanation
 -----------
 
+
 So let's look at some simple code examples, introducing some key ideas, while working up to that basic_monosynth.
 
-**Idea #1** : Gates of Dawn uses *function composition* as the way to wire together the units in Pure Data. 
+**Idea #1** : Gates of Dawn uses *function composition* as the way to wire together the units in PureData. 
 
 In PureData traditionally, you'd do something like wire the number coming out of a slider control to the input of an oscillator and then take 
 that to the dac audio output. Here's how to express that using Gates of Dawn.
@@ -183,6 +190,8 @@ In parts.py and other examples you'll find FM, distortion etc. some of which mig
 
 Here Comes The Science Bit
 --------------------------
+
+
 
 Behind the scenes Gates of Dawn does a couple of unorthodox things. 
 
