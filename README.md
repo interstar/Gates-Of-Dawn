@@ -1,3 +1,4 @@
+  ![Gates of Dawn](http://nooranch.com/blogged/pics/gatesofdawn.jpg)
 <div style="float: right; padding:10px;">
   ![Gates of Dawn](http://nooranch.com/blogged/pics/gatesofdawn.jpg)
 </div>
