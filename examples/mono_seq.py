@@ -31,9 +31,9 @@ def sequence(trigger,*vals) :
     return freq
 
 if __name__ == '__main__' :
-    # A synth controlled by a step sequencer, with a second synth controlled by midi
+    # A synth controlled by a step sequencer
     with patch("seq.pd") as f :
-    
+        script.cr()
         met = metronome(bang("metro"),"400")
         cyc = cycler(met,"16")
         
