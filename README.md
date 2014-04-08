@@ -120,7 +120,7 @@ We can combine it with our current two oscillator example like this :
 
 Notice that we've defined the vol function once, but we've called it twice, once for each of our oscillators. So we get two copies of this equipment in our patch.
 
-Of course, we can use Python to clean up and eliminate the redundancy here.
+Of course, we can clean up and eliminate the redundancy here. This is standard Python.
 
     def vol(sig,id=1) :
         return mult_(sig,num(slider("vol_%s" % id,0,1)))
@@ -196,7 +196,7 @@ It uses a module level object called *script* which gets filled with data every 
 
 Similarly the *patch()* function doesn't do what you expect. It doesn't open a new file object and hand it to you as the context for the "with". Instead it simply primes the script object with the new filename, cleans out the old script information and returns THAT to you. It's when we *exit* the context that the script object opens a new file and dumps the current data into it.
 
-If you want to write your own functions to create PD objects that aren't currently handled, then look first at the Generics in the god.py file. Generic0, Generic1, Generic2 etc. are the classes you use to create PD objects with 0, 1, 2 etc. arguments. In some cases a function to create a new PD object requires nothing more than creating an instance of a GenericX object in Python and calling its call method. If the Generics won't work for you, then you can write your own class, derived from Unit or UI. Look at some of the existing examples. 
+If you want to write your own functions to create PD objects that aren't currently handled, then look first at the Generics in the god.py file. Generic0, Generic1, Generic2 etc. are the classes you use to create PD objects with 0, 1, 2 etc. arguments. In some cases a function to create a new PD object requires nothing more than creating an instance of a GenericX object, passing it the appropriate name, and calling its call method. If the Generics won't work for you, then you can write your own class, derived from Unit or UI. Look at some of the existing examples. 
 
 
   ![Gates of Dawn](http://nooranch.com/blogged/pics/gatesofdawn.jpg)
