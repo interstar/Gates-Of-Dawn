@@ -179,7 +179,7 @@ basic_midi_monosynth.py makes the same synth, but controls pitch from a Midi inp
 
 multifile_abstraction_demo.py uses PD's Abstractions to import 3 of these basic_monosynths.
 
-mono_seq.py shows how you can make a simple step-sequencer - prefilled with notes -, and wraps the basic monosynth in AD envelopes for both amplitude and filter-cutoff.
+subloop.py shows how you can make a simple step-sequencer - prefilled with notes -, and wraps a basic monosynth in AD envelopes for both amplitude and filter-cutoff.
 
 In parts.py and other examples you'll find FM, distortion etc. some of which might even be (partially) working.
 

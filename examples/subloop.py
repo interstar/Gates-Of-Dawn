@@ -1,6 +1,10 @@
 from god import *
 from basic_monosynth import twin_osc
 
+# A demo sequencer that plays two mono-synths. Each monosynth has adjustable amplitude and filter AD envelopes
+# Plays the Sublime Loop :-) http://www.sublimeloop.com/
+
+
 def env_filtered(sig,trigger,id=1) :
     """ Envelope controls filter """
     return vcf_(sig,
@@ -58,7 +62,6 @@ if __name__ == '__main__' :
         cyc = cycler(met,"16")
         vNum(cyc)
         
-        # quick Sublime Loop :-) http://www.sublimeloop.com/
         seq  = sequence(cyc,48,51,48,51, 50,53,50,53, 46,50,46,50, 48,52,48,52)  
         seq2 = sequence(cyc,32,32,32,32, 34,34,34,34, 31,31,31,31, 28,28,28,28)
         
