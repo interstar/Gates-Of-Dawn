@@ -2,17 +2,8 @@
 # Python library to generate Pure Data files
 # Copyright Phil Jones 2013. Released under GPL 3.0
 
-from script import *
+from core import *
 
-
-class Unit : 
-    def __init__(self) :
-        self.common()
-        
-    def common(self) :
-        self.id = script.nextId()
-        self.x = script.x
-        self.y = script.nextY()
 
 class Num(Unit) :
 
@@ -28,17 +19,6 @@ class Num(Unit) :
 
 def num(*args) : return Num().__call__(*args)          
 
-class Generic0(Unit) :
-    """ Takes 0 input signals """
-    def __init__(self,name) :
-        self.common()
-        self.name = name
-
-    def outPort(self) : return 0
-
-    def __call__(self) :
-        script.add("#X obj %s %s %s;" % (self.x, self.y, self.name))
-        return self
         
 class Generic1(Generic0) :
     """ A generic that expects 1 input signal """
@@ -84,6 +64,8 @@ def dac_(*args) : return Dac().__call__(*args)
 class Op(Unit) :
     def __init__(self,operator) :
         self.op = operator
+        self._width = 60
+        self._height = 40
         self.common()
         
     def outPort(self) : return 0
@@ -116,6 +98,8 @@ class Osc(Unit) :
 
     def __init__(self, oscname) :
         self.oscname = oscname
+        self._width = 60
+        self._height = 40        
         self.common()
         
     def outPort(self) : return 0
@@ -224,13 +208,10 @@ class UI(Unit) :
 
         self.common()
     
-    def width(self) : return self._width
-    def height(self) : return self._height
            
     def common(self) :
         self.id = script.nextId()
-        self.x = script.ui_layout.nextX(self)
-        self.y = script.ui_layout.y
+        self.x, self.y = script.guiNextPosition(self)
 
 def guiCanvas() : script.guiCanvas()
 
@@ -246,7 +227,7 @@ class Bang(UI) :
 
 def bang(*args) : return Bang().__call__(*args)
         
-def loadbang(*args) : return Generic0("loadbang").__call__(*args)
+
 
 # Subcanvases
 class AbstractionSubcanvas(UI) :
