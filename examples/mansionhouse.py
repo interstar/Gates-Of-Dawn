@@ -7,11 +7,11 @@ def noise_fm(id) :
     
 if __name__ == '__main__' :
     with patch("basic_synth.pd") as taken :
-        outlet_ ( basic_synth(twin_osc(slider("pitch_$0",0,1000)),1) )
+        outlet_ ( basic_synth(twin_osc(slider("pitch_$0",0,1000)),"$0") )
         guiCanvas()
 
     with patch("basic_fm.pd") as taken :
-        outlet_ ( basic_synth(noise_fm(slider("pitch_$0",0,1000)),4) ) 
+        outlet_ ( basic_synth(noise_fm(slider("pitch_$0",0,1000)),"$0") ) 
         guiCanvas()
 
     with patch("mansion2.pd") as taken :
