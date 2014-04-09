@@ -1,5 +1,5 @@
 # Gates of Dawn
-# Python library to generate Pure Data files
+# Python library to generate PureData files
 # Copyright Phil Jones 2013. Released under GPL 3.0
 
 from core import *
@@ -196,8 +196,8 @@ def mod(*args) : return Generic1("mod").__call__(*args)
 
 def outlet_(*args) : return Generic1("outlet~").__call__(*args)
 def outlet(*args) : return Generic1("outlet").__call__(*args)
-def inlet_(*args) : return Generic1("inlet~").__call__(*args)
-def inlet(*args) : return Generic("inlet").__call__(*args)
+def inlet_(*args) : return Generic0("inlet~").__call__(*args)
+def inlet(*args) : return Generic0("inlet").__call__(*args)
 
 
 # User Interface
@@ -207,7 +207,8 @@ class UI(Unit) :
         self._height = 0
 
         self.common()
-    
+
+    def outPort(self) : return 0 # override this if it's not true    
            
     def common(self) :
         self.id = script.nextId()
@@ -215,12 +216,30 @@ class UI(Unit) :
 
 def guiCanvas() : script.guiCanvas()
 
+
+class VNum(UI) :
+
+    def __init__(self) :
+        self._width = 40
+        self._height = 20
+        self.common()
+
+        
+    def __call__(self,*args) :        
+        script.add("#X floatatom %s %s 5 0 0 0 - - -;" % (self.x,self.y))
+        if len(args) > 0 :
+            source = args[0]
+            script.connect(source,self,0)
+        
+        return self
+
+def vNum(*args) : return VNum().__call__(*args)          
+
         
 class Bang(UI) :
     def width(self) : return 80
     def height(self) : return 40
 
-    def outPort(self) : return 0
     def __call__(self,label) :
         script.add("#X obj %s %s bng 15 250 50 0 empty empty %s 17 7 0 10 -262144 -1 -1;" % (self.x,self.y,label))
         return self        
@@ -237,22 +256,22 @@ class AbstractionSubcanvas(UI) :
         self._width = width
         self._height = height
         self.common()
-
-        
-    def outPort(self) : return 0
     
-    def __call__(self) :
+    def __call__(self,sources=[]) :
         script.add("#X obj %s %s %s;" % (self.x, self.y, self.name))
+        c = 0
+        for s in sources :
+            # we tie them to the inputs
+            script.connect(s,self,c)
+            c=c+1
         return self
     
     
-def abstraction(name,width,height,*args) : return AbstractionSubcanvas(name,width,height).__call__(*args)
+def abstraction(name,width,height,**kwargs) : return AbstractionSubcanvas(name,width,height).__call__(**kwargs)
 
         
 # Messages
 class Message(UI) :
-
-    def outPort(self) : return 0
     
     def width(self) : return 80
     def height(self) : return 40
@@ -284,9 +303,7 @@ class Slider(UI) :
         self.high = high
 
         self.common()
-        
-    def outPort(self) : return 0
-    
+                    
     def width(self) : return self.sep_width
     def height(self) : return self.sep_height
     
