@@ -1,7 +1,7 @@
 from god import *
 
 def twin_osc(freq,id=1,diff=None) :
-    if diff is None : diff = slider("$0_twin_pitch_diff_%d"%id,0,20)    
+    if diff is None : diff = slider("$0_twin_pitch_diff_%s"%id,0,20)    
     diff = add_(freq,diff)
     return add_(
              add_(phasor_(freq),-0.5),
