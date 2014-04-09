@@ -31,20 +31,42 @@ def sequence(trigger,*vals) :
     return freq
 
 if __name__ == '__main__' :
-    # A synth controlled by a step sequencer
+    # A pair of monosynths controlled by a step sequencer        
+    
+    with patch("triggered_synth.pd") as f :
+        met = inlet()
+        pitch = inlet_()
+        syn = vol(simple_delay(
+            triggered_env(
+                  env_filtered(
+                      twin_osc(pitch,"$0"),
+                  met,"$0"),
+              met, "$0")
+           ,5000,"echo$0"),"$0")
+        outlet_(syn)
+        guiCanvas()
+               
+    
+    with patch("met.pd") as f :
+        outlet( metronome(bang("metro"),"500") )
+        guiCanvas()
+
+
     with patch("seq.pd") as f :
-        script.cr()
-        met = metronome(bang("metro"),"400")
+        met = abstraction("met",400,50)
+        
         cyc = cycler(met,"16")
+        vNum(cyc)
         
         # quick Sublime Loop :-) http://www.sublimeloop.com/
-        seq = sequence(cyc,48,51,48,51, 50,53,50,53, 46,50,46,50, 48,52,48,52)
-        num(seq)
-        script.cr()
-        syn1 = triggered_env(
-                    env_filtered(twin_osc(seq,1),met,1),
-                    met
-                ,1)
-              
-        dac_(vol(simple_delay(syn1,5000,"echo")))
+        seq  = sequence(cyc,48,51,48,51, 50,53,50,53, 46,50,46,50, 48,52,48,52)  
+        seq2 = sequence(cyc,32,32,32,32, 34,34,34,34, 31,31,31,31, 28,28,28,28)
+        
+        vNum(seq)
+        vNum(seq2)
+
+        syn1 = abstraction("triggered_synth",800,50,sources=[seq,met])
+        syn2 = abstraction("triggered_synth",800,50,sources=[seq2,met])                  
+                      
+        dac_(syn1,syn2)
 
