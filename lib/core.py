@@ -53,8 +53,8 @@ class Layout :
         
     def cr(self) :
         self.x = self.left        
-        self.y = self.y + self.dropY + 20
-        self.measureHeight.add(self.dropY+20)
+        self.y = self.y + self.dropY + 10
+        self.measureHeight.add(self.dropY+10)
         self.measureWidth.reset()
         
     def getHeight(self) : return self.y - self.top
