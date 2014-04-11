@@ -1,5 +1,5 @@
 from god import *
-from basic_monosynth import twin_osc
+from basic_monosynth import twin_osc, basic_synth
 
 # A demo sequencer that plays two mono-synths. Each monosynth has adjustable amplitude and filter AD envelopes
 # Plays the Sublime Loop :-) http://www.sublimeloop.com/
@@ -20,6 +20,7 @@ def sequence(trigger,*vals) :
     nums = range(len(vals))
     def f(*args) : return Generic0("f").__call__(*args)
     def slct(*args) : return Generic1("select").__call__(*args)
+    
     freq = Generic0("mtof").__call__()
     
     s = slct(trigger," ".join(["%s"%v for v in nums]))
@@ -35,11 +36,12 @@ def sequence(trigger,*vals) :
     return freq
 
 if __name__ == '__main__' :
-    # A pair of monosynths controlled by a step sequencer        
+    # A pair of monosynths controlled by a step sequencer
     
     with patch("triggered_synth.pd") as f :
         met = inlet()
-        pitch = inlet_()
+        pitch = inlet()
+        
         syn = vol(simple_delay(
             triggered_env(
                   env_filtered(
@@ -48,6 +50,7 @@ if __name__ == '__main__' :
               met, "$0")
            ,5000,"echo$0"),"$0")
         outlet_(syn)
+        vNum(pitch)
         guiCanvas()
                
     
