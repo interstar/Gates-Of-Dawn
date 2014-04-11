@@ -140,7 +140,23 @@ You'll notice, when looking at the resulting pd files, that they're ugly but usa
 This is still very much work in progress. The ideal for Gates of Dawn is that you should be able to generate everything you want, just from 
 the Python script, without having to tweak the PD files by hand later. But we're some way from that at this point. At the moment, if you need to make a simple and usable PD patch rapidly, Gates of Dawn will do it. But it's not going to give you a UI you'll want to use long-term.
 
-**Idea #7** : You still want to use PD's Abstractions
+**Idea #7** : Some objects might or might not be UI
+
+In particular Numbers and Messages might be things we want to show in the UI (so that the player can tweak them live). Or may just be part of the infrastructure (eg. the name of a file we always want to loadbang).
+
+There are therefore two versions of the num and msg functions : 
+
+- `num` and `msg` are "non-UI", they'll get lost in the left-hand column when your patch is layed out.
+
+- `vNum` and `vMsg` are UI versions, they'll get flowed with the other UI components so you can tweak them.
+
+For example :
+
+    vNum(slider("pitch",0,1000))
+    
+
+
+**Idea #8** : You still want to use PD's Abstractions
 
 Although Python provides convenient local reuse, you'll still want to use PD's own Abstraction mechanism in the large. Here's an example of 
 using it to make four of our simple oscillators defined previously : 
@@ -179,7 +195,7 @@ basic_midi_monosynth.py makes the same synth, but controls pitch from a Midi inp
 
 multifile_abstraction_demo.py uses PD's Abstractions to import 3 of these basic_monosynths.
 
-subloop.py shows how you can make a simple step-sequencer - prefilled with notes -, and wraps a basic monosynth in AD envelopes for both amplitude and filter-cutoff.
+subloop.py shows how you can make a simple step-sequencer - prefilled with notes -, and wraps a basic monosynth in AD envelopes for both amplitude and filter-cutoff. 
 
 In parts.py and other examples you'll find FM, distortion etc. some of which might even be (partially) working.
 
@@ -188,15 +204,13 @@ In parts.py and other examples you'll find FM, distortion etc. some of which mig
 Here Comes The Science Bit
 --------------------------
 
-
-
 Behind the scenes Gates of Dawn does a couple of unorthodox things. 
 
 It uses a module level object called *script* which gets filled with data every time you call a function. It's done this way to reduce the verbosity and visual noise in your program. (Otherwise we'd be writing something like *GOD.dac_(GOD.sin_(GOD.slider("pitch",0,1000)))* the whole time, which would get very tiresome indeed. But it means that you probably shouldn't try to do strange things like use the code in multi-threaded environments or mess around with scope hacking.
 
 Similarly the *patch()* function doesn't do what you expect. It doesn't open a new file object and hand it to you as the context for the "with". Instead it simply primes the script object with the new filename, cleans out the old script information and returns THAT to you. It's when we *exit* the context that the script object opens a new file and dumps the current data into it.
 
-If you want to write your own functions to create PD objects that aren't currently handled, then look first at the Generics in the god.py file. Generic0, Generic1, Generic2 etc. are the classes you use to create PD objects with 0, 1, 2 etc. arguments. In some cases a function to create a new PD object requires nothing more than creating an instance of a GenericX object, passing it the appropriate name, and calling its call method. If the Generics won't work for you, then you can write your own class, derived from Unit or UI. Look at some of the existing examples. 
+If you want to write your own functions to create PD objects that aren't currently handled, then look first at the Generics in the core.py and god.py files. Generic0, Generic1, Generic2 etc. are the classes you use to create PD objects with 0, 1, 2 etc. arguments. In some cases a function to create a new PD object requires nothing more than creating an instance of a GenericX object, passing it the appropriate name, and calling its call method. If the Generics won't work for you, then you can write your own class, derived from Unit or UI. Look at some of the existing examples. 
 
 
   ![Gates of Dawn](http://nooranch.com/blogged/pics/gatesofdawn.jpg)

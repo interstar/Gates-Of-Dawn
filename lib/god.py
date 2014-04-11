@@ -19,6 +19,22 @@ class Num(Unit) :
 
 def num(*args) : return Num().__call__(*args)          
 
+class Message(Unit) :
+    """Not UI Message """
+    def width(self) : return 80
+    def height(self) : return 40
+    def outPort(self) : return 0
+    
+    def __call__(self,x,y=None) :
+        if y :
+            script.add("#X msg %s %s %s;" % (self.x, self.y, y))
+            script.connect(x,self,0)
+        else :
+            script.add("#X msg %s %s %s;" % (self.x, self.y, x))
+        return self
+
+def msg(*args) : return Message().__call__(*args)
+
         
 class Generic1(Generic0) :
     """ A generic that expects 1 input signal """
@@ -266,13 +282,16 @@ class AbstractionSubcanvas(UI) :
             c=c+1
         return self
     
-    
-def abstraction(name,width,height,**kwargs) : return AbstractionSubcanvas(name,width,height).__call__(**kwargs)
+def abstraction(name,width,height,**kwargs) : 
+    """Note something unusual here. We take keyword arguments to this function, and look in a kwarg called "sources" for a list 
+    of sources for the inlets. We do it this way because we'll also want to be able to pass ordinary arguments to the abstraction
+    (though this isn't supported yet) and so we'll put them in a different list"""
+    return AbstractionSubcanvas(name,width,height).__call__(**kwargs)
 
         
 # Messages
-class Message(UI) :
-    
+class VMessage(UI) :
+    """ UI Version of Message"""
     def width(self) : return 80
     def height(self) : return 40
     
@@ -284,7 +303,7 @@ class Message(UI) :
             script.add("#X msg %s %s %s;" % (self.x, self.y, x))
         return self
 
-def msg(*args) : return Message().__call__(*args)
+def vMsg(*args) : return Message().__call__(*args)
 
 
 # Default initialization messages
