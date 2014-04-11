@@ -21,7 +21,7 @@ def sequence(trigger,*vals) :
     def f(*args) : return Generic0("f").__call__(*args)
     def slct(*args) : return Generic1("select").__call__(*args)
     
-    freq = Generic0("mtof").__call__()
+    note = num()
     
     s = slct(trigger," ".join(["%s"%v for v in nums]))
     i = 0
@@ -31,17 +31,20 @@ def sequence(trigger,*vals) :
         
         #script.connect(slider("slider_%s"%i,0,128,default=32),fb,1)
         script.connectFrom(s,i,fb,0)
-        script.connect(fb,freq,0)
+        script.connect(fb,note,0)
         i=i+1
-    return freq
+    return note
 
 if __name__ == '__main__' :
     # A pair of monosynths controlled by a step sequencer
     
     with patch("triggered_synth.pd") as f :
         met = inlet()
-        pitch = inlet()
+        midiNote = inlet()
+        vNum(midiNote)
         
+        pitch = Generic1("mtof").__call__(midiNote)
+                
         syn = vol(simple_delay(
             triggered_env(
                   env_filtered(
@@ -50,7 +53,7 @@ if __name__ == '__main__' :
               met, "$0")
            ,5000,"echo$0"),"$0")
         outlet_(syn)
-        vNum(pitch)
+        
         guiCanvas()
                
     
