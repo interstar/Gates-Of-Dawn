@@ -339,7 +339,10 @@ class Slider(UI) :
 def hslider(*args,**kwargs) : return Slider("hsl",120, 20, 150).__call__(*args,**kwargs)
 def vslider(*args,**kwargs) : return Slider("vsl",20, 120, 80).__call__(*args,**kwargs)
 
-
+def add_input(extra,obj,port=0) :
+    "adds an extra input to an object which doesn't default to having one"
+    script.connect(extra,obj,port)
+    return obj
 
 
 # MIDI

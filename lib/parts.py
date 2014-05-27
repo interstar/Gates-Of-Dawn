@@ -5,8 +5,10 @@ slider = hslider
 def vol(sig,id=1) :
     return mult_(sig,num(slider("vol_%s" % id,0,1)))
 
+
+
 def lfo(sig,id=1) :
-    return mult_(sig,phasor_(slider("lfo_%s"%id,-15,15,default=0.0001)))
+    return mult_(sig,phasor_(add_input(inlet(),slider("lfo_%s"%id,-15,15,default=0.0001))))
 
 
 def fm(freq,id=1) :
@@ -20,9 +22,10 @@ def fm(freq,id=1) :
   
 def filtered(sig,id=1) :
     return vcf_(sig,
-               mult_(phasor_(slider("filt_freq_phasor_speed_%s"%id,-10,10)),1000),               
+               mult_(phasor_(add_input(inlet(),slider("filt_freq_phasor_speed_%s"%id,-10,10,default=0.0001))),1000),
                num(slider("filter_res_%s"%id,0,10))
            )
+           
 
 
 def midi_filtered(sig,id=1) :
