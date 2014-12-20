@@ -75,6 +75,7 @@ class Patch :
         self.fName = name
         self.objects = []
         self.connects = []
+        self.others = []
         self.ids = -1
         self.gui_layout = layout
         self.hidden_layout = Layout(5,10,40,50)
@@ -98,6 +99,9 @@ class Patch :
     def connect(self,src,sink,sinkPort) :
         self.connectFrom(src,src.outPort(),sink,sinkPort)
 
+    def addOther(self,s) :
+        self.others.append(s)
+
     def connectFrom(self,src,srcPort,sink,sinkPort) :
         self.addConnect("#X connect %s %s %s %s;" % (src.id,srcPort,sink.id,sinkPort))
         
@@ -118,6 +122,8 @@ class Patch :
         
     def out(self) :
         s = """#N canvas 100 100 %s %s %s;\r\n""" % (self.windowWidth(), self.windowHeight(), self.fName)
+        for o in self.others : 
+            s = s + o + "\r\n"
         for o in self.objects :        
             s = s + o + "\r\n"
         for c in self.connects :
@@ -154,6 +160,7 @@ class Unit :
     def common(self) :
         self.id = script.nextId()
         self.x, self.y = script.hiddenNextPosition(self)
+        return self
 
 class Generic0(Unit) :
     """ Takes 0 input signals """
@@ -171,3 +178,5 @@ class Generic0(Unit) :
 
 # this has to be defined in this file so that we can handle circular reference between it and Patch class
 def loadbang(*args) : return Generic0("loadbang").__call__(*args)
+
+

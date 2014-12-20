@@ -212,7 +212,7 @@ def mod(*args) : return Generic1("mod").__call__(*args)
 
 def outlet_(*args) : return Generic1("outlet~").__call__(*args)
 def outlet(*args) : return Generic1("outlet").__call__(*args)
-def inlet_(*args) : return Generic0("inlet~").__call__(*args)
+def ab_(*args) : return Generic0("inlet~").__call__(*args)
 def inlet(*args) : return Generic0("inlet").__call__(*args)
 
 
@@ -365,4 +365,45 @@ class CtlIn(Unit) :
 def ctl_in(*args) : return CtlIn().__call__(*args) 
 
        
+# OSC
 
+class UDPReceive(Generic0) :
+    def __call__(self,portNo,*args) :
+        script.add("#X obj %s %s udpreceive %s;" % (self.x,self.y,portNo))
+        return self
+        
+def udpreceive(*args) : return UDPReceive("udpreceive").__call__(*args)
+
+def unpackOSC(*args) : return Generic1("unpackOSC").__call__(*args)
+
+
+class RouteOSC(Unit) :
+    def __init__(self, chan) :
+        self._width = 80
+        self._height = 20
+        self.common()
+        self.chan = chan
+        
+
+    def outPort(self) : return 0
+        
+    def __call__(self, *args) :
+        script.add("#X obj %s %s routeOSC %s;" % (self.x,self.y,self.chan))
+        return self
+        
+                
+def routeOSC(chan,*args) : return RouteOSC(chan).__call__(*args)
+
+def unpack(*args) : return Generic1("unpack").__call__(*args)
+    
+def osc_in(portNo) : 
+    s = unpackOSC(udpreceive(portNo))
+    return s
+    
+def osc_routed(oscin, chan, noParams) :
+    return unpack(routeOSC(chan,oscin), "f " * noParams)
+
+
+# Imports
+def importer(name) :
+    script.addOther("#X declare -lib %s" % name)
