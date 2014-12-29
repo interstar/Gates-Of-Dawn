@@ -9,15 +9,19 @@ class Num(Unit) :
 
     def outPort(self) : return 0
     
-    def __call__(self,*args) :        
-        script.add("#X floatatom %s %s 5 0 0 0 - - -;" % (self.x,self.y))
+    def __call__(self,*args,**kwargs) :        
+        if kwargs.has_key("value") :
+            val = kwargs["value"]
+        else :
+            val = 0
+        script.add("#X floatatom %s %s 5 %s 0 0 - - -;" % (self.x,self.y,val))
         if len(args) > 0 :
             source = args[0]
             script.connect(source,self,0)
         
         return self
 
-def num(*args) : return Num().__call__(*args)          
+def num(*args,**kwargs) : return Num().__call__(*args,**kwargs)          
 
 class Message(Unit) :
     """Not UI Message """
@@ -25,12 +29,15 @@ class Message(Unit) :
     def height(self) : return 40
     def outPort(self) : return 0
     
-    def __call__(self,x,y=None) :
-        if y :
+    def __call__(self,*args) :
+    
+        if len(args) > 1 :
+            x = args[0]
+            y = args[1]
             script.add("#X msg %s %s %s;" % (self.x, self.y, y))
             script.connect(x,self,0)
         else :
-            script.add("#X msg %s %s %s;" % (self.x, self.y, x))
+            script.add("#X msg %s %s %s;" % (self.x, self.y, args[0]))
         return self
 
 def msg(*args) : return Message().__call__(*args)
@@ -221,7 +228,6 @@ class UI(Unit) :
     def __init__(self) :
         self._width = 0
         self._height = 0
-
         self.common()
 
     def outPort(self) : return 0 # override this if it's not true    
@@ -383,12 +389,12 @@ class RouteOSC(Unit) :
         self._height = 20
         self.common()
         self.chan = chan
-        
 
     def outPort(self) : return 0
         
-    def __call__(self, *args) :
+    def __call__(self, inmessage,*args) :
         script.add("#X obj %s %s routeOSC %s;" % (self.x,self.y,self.chan))
+        script.connect(inmessage,self,0)
         return self
         
                 
@@ -406,4 +412,6 @@ def osc_routed(oscin, chan, noParams) :
 
 # Imports
 def importer(name) :
-    script.addOther("#X declare -lib %s" % name)
+    script.nextId()
+    script.addOther("#X declare -lib %s;" % name)
+    script.add("#X obj 16 39 import %s;" % name)
