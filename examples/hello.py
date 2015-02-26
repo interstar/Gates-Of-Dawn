@@ -13,34 +13,38 @@ def twin_osc(freq,id=1,diff=None) :
 def lessfiltered(sig,id=1) :
     i = add_input(inlet(),slider("cutoff_%s",0,1000))
     return vcf_(sig,
-               num(i),
+               vNum(i),
                #mult_(phasor_(add_input(inlet(),slider("filt_freq_phasor_speed_%s"%id,-10,10,default=0.0001))),1000),
                num(slider("filter_res_%s"%id,0,10))
            )
 
 
-def synth(src,id=1) :
+def synth(src,trigger,id=1) :
     return vol(
-        simple_delay(
-           lessfiltered(
-                src
-           ,id)
+        simple_delay( 
+            triggered_env(
+                lessfiltered(src,id)
+               ,trigger,id)             
         ,1000,"$0_echo_%s"%id)
     ,id)
 
 
 
 with patch("hello.pd") as f :
-    outlet_ ( synth(twin_osc( vNum(inlet()),"$0"),"$0") )
+    b = bang("note on")
+    s = select(inlet(),"1")
+    script.connectFrom(s,0,b,0)
+    outlet_ ( synth(twin_osc( vNum(inlet()),"$0"),b,"$0") )
     guiCanvas()
 
 
 def make_synth(osc_in,no,noIns) :
     router = osc_routed(osc_in,"/channel%s"%no,noIns)
     ab = abstraction("hello",800,50)
+    script.connectFrom(router,0,ab,2)
+    script.connectFrom(router,1,ab,1)
     script.connectFrom(router,2,ab,0)
-    script.connectFrom(router,1,ab,2)
-    script.connectFrom(router,0,ab,1)
+    script.connectFrom(router,3,ab,3)
     return ab
     
 def mix(*sigs) :
@@ -53,6 +57,7 @@ with patch("hello_main.pd") as f :
     importer("mrpeach")
 
     oin = osc_in(9004)
+    
     
     dac_( mix(
         make_synth(oin,0,4),
