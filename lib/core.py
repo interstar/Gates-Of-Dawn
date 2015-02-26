@@ -66,6 +66,7 @@ class Layout :
         return self.measureHeight.currentMax
 
 
+_log = []
 class Patch :
     def __init__(self,name,layout) :
         self.reset(name,layout)
@@ -86,8 +87,9 @@ class Patch :
             self.lb = loadbang()
         return self.lb  
                 
-    def nextId(self) :
+    def nextId(self,comment) :
         self.ids = self.ids + 1
+        _log.append(comment)
         return self.ids
             
     def add(self,s) :
@@ -158,7 +160,7 @@ class Unit :
     def height(self) : return self._height
         
     def common(self) :
-        self.id = script.nextId()
+        self.id = script.nextId("Unit common")
         self.x, self.y = script.hiddenNextPosition(self)
         return self
 

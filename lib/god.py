@@ -222,6 +222,7 @@ def outlet(*args) : return Generic1("outlet").__call__(*args)
 def ab_(*args) : return Generic0("inlet~").__call__(*args)
 def inlet(*args) : return Generic0("inlet").__call__(*args)
 
+def select(*args) : return Generic1("sel").__call__(*args)
 
 # User Interface
 class UI(Unit) :
@@ -233,7 +234,7 @@ class UI(Unit) :
     def outPort(self) : return 0 # override this if it's not true    
            
     def common(self) :
-        self.id = script.nextId()
+        self.id = script.nextId("UI")
         self.x, self.y = script.guiNextPosition(self)
 
 def guiCanvas() : script.guiCanvas()
@@ -412,6 +413,32 @@ def osc_routed(oscin, chan, noParams) :
 
 # Imports
 def importer(name) :
-    script.nextId()
+    script.nextId("Importer")
     script.addOther("#X declare -lib %s;" % name)
     script.add("#X obj 16 39 import %s;" % name)
+    
+
+# Recording 
+class WriteSF(Unit) :
+    def __init__(self,fName) : 
+        self.fName = fName
+        self._width = 60
+        self._height = 40        
+        self.common()
+        
+    def __call__(self,*args) :
+        script.add("#X obj %s %s writesf~ 2;" % (self.x,self.y))
+
+        mName = vMsg("open %s" % self.fName)
+        mStart = vMsg("start")
+        mStop = vMsg("stop")
+        add_input(mName,self)
+        add_input(mStart,self)        
+        add_input(mStop,self)
+        for a in args :
+            script.connect(a,self,0)
+            script.connect(a,self,1)
+        return self
+        
+def writesf_(fName,*args) : return WriteSF(fName).__call__(*args)
+

@@ -98,3 +98,7 @@ def metronome(start,speed) :
     
 def cycler(metro,maxi) :
     return mod(counter(metro),maxi)
+    
+def recordable_dac_(fName, *args) :
+    writesf_(fName,*args)
+    return dac_(*args)
